@@ -1,10 +1,10 @@
-## 二叉堆
+# 二叉堆
 
 
 
 
 
-## 二叉树
+# 二叉树
 
 ```c++
 struct TreeNode{
@@ -81,8 +81,8 @@ void traverse(TreeNode *root){
 | LC 145 |              binary-tree-postorder-traversal               |  done  | 20231017 |
 | LC 105 | construct-binary-tree-from-preorder-and-inorder-traversal  |  done  | 20231017 |
 | LC 106 | construct-binary-tree-from-inorder-and-postorder-traversal |  done  | 20231017 |
-| LC 21  |                   merge-two-sorted-lists                   |        |          |
-| LC 86  |                       partition-list                       |        |          |
-|        |                                                            |        |          |
+| LC 21  |                   merge-two-sorted-lists                   |  done  | 20231018 |
+| LC 86  |                       partition-list                       |  done  | 20231018 |
+| LC 230 |               kth-smallest-element-in-a-bst                |  done  | 20231018 |
 |        |                                                            |        |          |
 
