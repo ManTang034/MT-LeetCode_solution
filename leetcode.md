@@ -218,4 +218,13 @@ void traverse(TreeNode *root){
 | LC 230 |               kth-smallest-element-in-a-bst                |  done  | 20231018 |
 | LC 19  |              remove-nth-node-from-end-of-list              |  done  | 20231019 |
 | LC 23  |                    merge-k-sorted-lists                    |  done  | 20231019 |
+| LC 141 |                     linked-list-cycle                      |  done  | 20231020 |
+| LC 142 |                    linked-list-cycle-ii                    |  done  | 20231020 |
+| LC 160 |              intersection-of-two-linked-lists              |  done  | 20231020 |
+| LC 876 |                 .middle-of-the-linked-list                 |  done  | 20231020 |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
 
