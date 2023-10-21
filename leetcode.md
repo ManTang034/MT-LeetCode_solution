@@ -216,6 +216,63 @@ void traverse(TreeNode *root){
 
 
 
+# 滑动窗口
+
+**滑动窗口算法思路：**
+
+```c++
+int left=0,right=0;
+
+while(left<right&&right<s.size()){
+  //增大窗口
+  window.add(s[right]);
+  right++;
+  
+  while(window needs shrink){
+    //缩小窗口
+    window.remove(s[left]);
+    left++;
+  }
+}
+```
+
+**滑动窗口算法框架**
+
+```c++
+/*滑动窗口算法框架*/
+void slidingWindow(string s){
+  //用合适的数据结构记录窗口中的数据
+  unordered_map<char,int>window;
+  
+  int left=0,right=0;
+  while(right<s.size()){
+    //c是将移入窗口的字符
+    char c=s[right];
+    window.add(c);
+    //增大窗口
+    right++;
+    //进行窗口内数据的一系列更新
+    ...
+      
+    /* debug输出位置*/
+    printf("window:[%d,%d]\n",left,right);
+    
+    //判断左侧窗口是否要收缩
+    while(left<right&&window need shrink){
+      //d是将移出窗口的字符
+      char d=s[left];
+      window.remove(d);
+      //缩小窗口
+      left++;
+      //进行窗口内数据的一系列更新
+      ...
+    }
+  }
+}
+```
+
+
+
 # Timeline
 
 | Number |                          Question                          | Status |   Date   |
@@ -238,5 +295,35 @@ void traverse(TreeNode *root){
 | LC 83  |             remove-duplicates-from-sorted-list             |  done  | 20231021 |
 | LC 27  |                       remove-element                       |  done  | 20231021 |
 | LC 283 |                        move-zeroes                         |  done  | 20231021 |
+| LC 76  |                  minimum-window-substring                  |  done  | 20231021 |
+| LC 567 |                   permutation-in-string                    |  done  | 20231021 |
+| LC 438 |               find-all-anagrams-in-a-string                |  done  | 20231021 |
+|  LC 3  |       longest-substring-without-repeating-characters       |  done  | 20231021 |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
+|        |                                                            |        |          |
 |        |                                                            |        |          |
 
