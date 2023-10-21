@@ -204,6 +204,18 @@ void traverse(TreeNode *root){
 
 
 
+# 链表
+
+> 双指针：1.快慢指针（两个指针同向而行，一快一慢）
+>
+> 2.左右指针（两个指针相向而行或者向背而行）
+>
+> 对于单链表来说，大部分技巧都属于快慢指针，如判断链表中是否有环，倒数第k个链表节点等问题，都是通过一个fast快指针和一个slow满指针配合完成任务。
+>
+> 虚拟头节点
+
+
+
 # Timeline
 
 | Number |                          Question                          | Status |   Date   |
@@ -221,10 +233,10 @@ void traverse(TreeNode *root){
 | LC 141 |                     linked-list-cycle                      |  done  | 20231020 |
 | LC 142 |                    linked-list-cycle-ii                    |  done  | 20231020 |
 | LC 160 |              intersection-of-two-linked-lists              |  done  | 20231020 |
-| LC 876 |                 .middle-of-the-linked-list                 |  done  | 20231020 |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
+| LC 876 |                 middle-of-the-linked-list                  |  done  | 20231020 |
+| LC 26  |            remove-duplicates-from-sorted-array.            |  done  | 20231021 |
+| LC 83  |             remove-duplicates-from-sorted-list             |  done  | 20231021 |
+| LC 27  |                       remove-element                       |  done  | 20231021 |
+| LC 283 |                        move-zeroes                         |  done  | 20231021 |
 |        |                                                            |        |          |
 
