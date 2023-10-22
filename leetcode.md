@@ -136,6 +136,26 @@ private:
 
 
 
+## 最小堆
+
+```c++
+priority_queue<ListNode*,vector<ListNode*>,function<bool(ListNode*,ListNode*)>>pq([](ListNode*a,ListNode*b){return a->val>b->val});
+/*
+ListNode*表示容器中存储的元素类型
+vector<ListNode*>表示底层容器使用vector来实现，存储的元素是指向ListNode对象的指针。
+function<bool(ListNode*,ListNode*)>表示定义元素之间比较多自定义函数类型
+由于比较函数实现的是a->val>b->val，表示节点值较大的节点优先级更高，因此它是一个最小堆。
+*/
+```
+
+## 最大堆
+
+```c++
+priority_queue<ListNode*,vector<ListNode*>,function<bool(ListNode*,ListNode*)>>pq([](ListNode*a,ListNode*b){return a->val<b->val});
+```
+
+
+
 # 二叉树
 
 ```c++
@@ -214,6 +234,14 @@ void traverse(TreeNode *root){
 >
 > 虚拟头节点
 
+1. 合并两个有序链表
+2. 链表的分解
+3. 合并k个有序链表
+4. 寻找单链表的倒数第k个节点
+5. 寻找单链表的中点
+6. 判断单链表是否包含环并找出环起点
+7. 判断两个单链表是否相交并找出交点
+
 
 
 # 滑动窗口
@@ -273,7 +301,33 @@ void slidingWindow(string s){
 
 
 
-# Timeline
+# 二分查找
+
+二分查找框架
+
+> 计算mid时需要防止溢出，代码中left+(right-left)/2和(left+right)/2的结果相同，但是有效防止了left和right太大，直接相加导致溢出的情况。
+
+```c++
+int binarySearch(vector<int>&nums,int target){
+  int left=0,right=nums.size()-1;
+  
+  while(left<=right){
+    int mid=left+(right-left)/2;
+    if(nums[mid]==target){
+      ...
+    }else if(nums[mid<target]){
+      left=mid+1;
+    }else if(nums[mid]>target){
+      right=mid-1;
+    }
+  }
+  return ...;
+}
+```
+
+
+
+# 时间线1
 
 | Number |                          Question                          | Status |   Date   |
 | :----: | :--------------------------------------------------------: | :----: | :------: |
@@ -299,6 +353,7 @@ void slidingWindow(string s){
 | LC 567 |                   permutation-in-string                    |  done  | 20231021 |
 | LC 438 |               find-all-anagrams-in-a-string                |  done  | 20231021 |
 |  LC 3  |       longest-substring-without-repeating-characters       |  done  | 20231021 |
+| LC 704 |                       binary-search                        |  done  | 20231022 |
 |        |                                                            |        |          |
 |        |                                                            |        |          |
 |        |                                                            |        |          |
@@ -325,5 +380,78 @@ void slidingWindow(string s){
 |        |                                                            |        |          |
 |        |                                                            |        |          |
 |        |                                                            |        |          |
-|        |                                                            |        |          |
+
+# 时间线2
+
+## 阶段一：数据结构
+
+|   数据结构   | 类型 |       时间        |
+| :----------: | :--: | :---------------: |
+|     链表     |      | 20231018-20231022 |
+|     数组     |      |                   |
+|    二叉树    |      |                   |
+|      图      |      |                   |
+| 设计数据结构 |      |                   |
+
+### 链表-review
+
+| Number                                                       |      |      |      |      |      |
+| :----------------------------------------------------------- | :--: | :--: | :--: | :--: | :--: |
+| [141. 环形链表](https://leetcode.cn/problems/linked-list-cycle/) |      |      |      |      |      |
+| [142. 环形链表 II](https://leetcode.cn/problems/linked-list-cycle-ii/) |      |      |      |      |      |
+| [160. 相交链表](https://leetcode.cn/problems/intersection-of-two-linked-lists/) |      |      |      |      |      |
+| [19. 删除链表的倒数第 N 个结点](https://leetcode.cn/problems/remove-nth-node-from-end-of-list/) |      |      |      |      |      |
+| [21. 合并两个有序链表](https://leetcode.cn/problems/merge-two-sorted-lists/) |      |      |      |      |      |
+| [23. 合并K个升序链表](https://leetcode.cn/problems/merge-k-sorted-lists/) |      |      |      |      |      |
+| [86. 分隔链表](https://leetcode.cn/problems/partition-list/) |      |      |      |      |      |
+| [876. 链表的中间结点](https://leetcode.cn/problems/middle-of-the-linked-list/) |      |      |      |      |      |
+| [剑指 Offer 22. 链表中倒数第k个节点](https://leetcode.cn/problems/lian-biao-zhong-dao-shu-di-kge-jie-dian-lcof/) |      |      |      |      |      |
+| [剑指 Offer 25. 合并两个排序的链表](https://leetcode.cn/problems/he-bing-liang-ge-pai-xu-de-lian-biao-lcof/) |      |      |      |      |      |
+| [剑指 Offer 52. 两个链表的第一个公共节点](https://leetcode.cn/problems/liang-ge-lian-biao-de-di-yi-ge-gong-gong-jie-dian-lcof/) |      |      |      |      |      |
+| [剑指 Offer II 021. 删除链表的倒数第 n 个结点](https://leetcode.cn/problems/SLwz0R/) |      |      |      |      |      |
+| [剑指 Offer II 022. 链表中环的入口节点](https://leetcode.cn/problems/c32eOV/) |      |      |      |      |      |
+| [剑指 Offer II 023. 两个链表的第一个重合节点](https://leetcode.cn/problems/3u1WK4/) |      |      |      |      |      |
+| [剑指 Offer II 078. 合并排序链表](https://leetcode.cn/problems/vvXgSW/) |      |      |      |      |      |
+
+
+
+### 滑动窗口-review
+
+| Number                                                       |      |      |      |      |      |
+| ------------------------------------------------------------ | ---- | ---- | ---- | ---- | ---- |
+| [3. 无重复字符的最长子串](https://leetcode.cn/problems/longest-substring-without-repeating-characters/) |      |      |      |      |      |
+| [438. 找到字符串中所有字母异位词](https://leetcode.cn/problems/find-all-anagrams-in-a-string/) |      |      |      |      |      |
+| [567. 字符串的排列](https://leetcode.cn/problems/permutation-in-string/) |      |      |      |      |      |
+| [76. 最小覆盖子串](https://leetcode.cn/problems/minimum-window-substring/) |      |      |      |      |      |
+| [剑指 Offer 48. 最长不含重复字符的子字符串](https://leetcode.cn/problems/zui-chang-bu-han-zhong-fu-zi-fu-de-zi-zi-fu-chuan-lcof/) |      |      |      |      |      |
+| [剑指 Offer II 014. 字符串中的变位词](https://leetcode.cn/problems/MPnaiL/) |      |      |      |      |      |
+| [剑指 Offer II 015. 字符串中的所有变位词](https://leetcode.cn/problems/VabMRr/) |      |      |      |      |      |
+| [剑指 Offer II 016. 不含重复字符的最长子字符串](https://leetcode.cn/problems/wtcaE1/) |      |      |      |      |      |
+| [剑指 Offer II 017. 含有所有字符的最短字符串](https://leetcode.cn/problems/M1oyTv/) |      |      |      |      |      |
+
+
+
+
+
+
+
+## 阶段二：动态规划
+
+|     动态规划     | 类型 | 时间 |
+| :--------------: | :--: | :--: |
+| 动态规划基本技巧 |      |      |
+|  子序列类型问题  |      |      |
+|   背包类型问题   |      |      |
+| 用动态规划玩游戏 |      |      |
+|   贪心类型问题   |      |      |
+
+
+
+## 阶段三：算法技巧
+
+|   算法技巧   | 类型 | 时间 |
+| :----------: | :--: | :--: |
+| 暴力搜索算法 |      |      |
+| 数学运算技巧 |      |      |
+|  经典面试题  |      |      |
 
