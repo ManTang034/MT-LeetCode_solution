@@ -419,7 +419,7 @@ int right_bound(vector<int>&nums, int target){
 | LC 438 |               find-all-anagrams-in-a-string                |  done  | 20231021 |
 |  LC 3  |       longest-substring-without-repeating-characters       |  done  | 20231021 |
 | LC 704 |                       binary-search                        |  done  | 20231022 |
-|        |                                                            |        |          |
+| LC 34  |  find-first-and-last-position-of-element-in-sorted-array   |  done  | 20231023 |
 |        |                                                            |        |          |
 |        |                                                            |        |          |
 |        |                                                            |        |          |
@@ -495,6 +495,14 @@ int right_bound(vector<int>&nums, int target){
 | [剑指 Offer II 017. 含有所有字符的最短字符串](https://leetcode.cn/problems/M1oyTv/) |      |      |      |      |      |
 
 
+
+### 二分搜索-review
+
+| Number                                                       |      |      |
+| ------------------------------------------------------------ | ---- | ---- |
+| [34. 在排序数组中查找元素的第一个和最后一个位置](https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/) |      |      |
+| [704. 二分查找](https://leetcode.cn/problems/binary-search/) |      |      |
+| [剑指 Offer 53 - I. 在排序数组中查找数字 I](https://leetcode.cn/problems/zai-pai-xu-shu-zu-zhong-cha-zhao-shu-zi-lcof/) |      |      |
 
 
 
