@@ -303,7 +303,7 @@ void slidingWindow(string s){
 
 # 二分查找
 
-二分查找框架
+**一、寻找一个数（基本的二分搜索）**
 
 > 计算mid时需要防止溢出，代码中left+(right-left)/2和(left+right)/2的结果相同，但是有效防止了left和right太大，直接相加导致溢出的情况。
 
@@ -322,6 +322,71 @@ int binarySearch(vector<int>&nums,int target){
     }
   }
   return ...;
+}
+```
+
+> **1.为什么while循环的条件中是<=，而不是<?**
+>
+> 初始化的right=nums.length-1，即最后一个元素的索引，而不是nums.length。这二者可能出现在不同功能的二分查找中，区别是：前者相当于两端都闭区间[left,right]，后者相当于左闭右开区间[left,right)。因为索引大小nums.length是越界的，所以把right这一边视作开区间。
+>
+> `while(left <= right)` 的终止条件是 `left == right + 1`，写成区间的形式就是 `[right + 1, right]`，或者带个具体的数字进去 `[3, 2]`，可见**这时候区间为空**，因为没有数字既大于等于 3 又小于等于 2 的吧。所以这时候 while 循环终止是正确的，直接返回 -1 即可。
+>
+> `while(left < right)` 的终止条件是 `left == right`，写成区间的形式就是 `[right, right]`，或者带个具体的数字进去 `[2, 2]`，**这时候区间非空**，还有一个数 2，但此时 while 循环终止了。也就是说区间 `[2, 2]` 被漏掉了，索引 2 没有被搜索，如果这时候直接返回 -1 就是错误的。
+
+
+
+**二、寻找左侧边界的二分搜索**
+
+```c++
+int left_bound(vector<int>&nums, int target){
+    int left=0,right=nums.size()-1;
+    
+    while(left<=right){
+        int mid=left+(right-left)/2;
+        if(nums[mid]<target){
+            left=mid+1;
+        }else if(nums[mid]>target){
+            right=mid-1;
+        }else if(nums[mid]==target){
+            right=mid-1;
+        }
+    }
+    // 如果索引越界，说明数组中无目标元素，返回-1
+    if(left<0 || left>=nums.size()){
+        return -1;
+    }
+    // 判断nums[left]是不是target
+    return nums[left]==target?left:-1;
+}
+```
+
+
+
+**三、寻找右侧边界的二分查找**
+
+```c++
+int right_bound(vector<int>&nums, int target){
+    int left=0,right=nums.size()-1;
+    while(left<=right){
+        int mid=left+(right-left)/2;
+        if(nums[mid]>target){
+            right=mid-1;
+        }else if(nums[mid]<target){
+            left=mid+1;
+        }else if(nums[mid]==target){
+            left=mid+1;
+        }
+    }
+    if(right<0 || right>=nums.size()){
+        return -1;
+    }
+    return nums[right]==target?right:-1;
+    /*
+    if(left-1<0 || left-1>=nums.size()){
+        return -1;
+    }
+    return nums[left-1]==target?(left-1):-1;
+    */
 }
 ```
 
