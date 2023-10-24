@@ -301,7 +301,7 @@ void slidingWindow(string s){
 
 
 
-# 二分查找
+# 二分搜索
 
 **一、寻找一个数（基本的二分搜索）**
 
@@ -392,6 +392,208 @@ int right_bound(vector<int>&nums, int target){
 
 
 
+# nSum问题
+
+**two sum**
+
+```c++
+vector<vector<int>>twoSumTarget(vector<int>&nums, int target){
+    // nums数组必须有序
+    sort(nums.begin(),nums.end());
+    int lo = 0, hi = nums.size()-1;
+    while(lo<hi){
+        int sum=nums[lo]+nums[hi];
+        int left=nums[lo],right=nums[hi];
+        if(sum<target){
+            while(lo<hi && nums[lo]==left){
+                lo++;
+            }
+        }else if(sum>target){
+            while(lo<hi && nums[hi]==right){
+                hi--;
+            }
+        }else{
+            res.push_back({left,right});
+            while(lo<hi&&nums[lo]==left){
+                lo++;
+            }
+            while(lo<hi&&nums[hi]==right){
+                hi--;
+            }
+        }
+    }
+    return res;
+}
+```
+
+
+
+**triple sum**
+
+```c++
+/*从nums[start]开始，计算有序数组nums中所有和为target的二元组*/
+vector<vector<int>>twoSumTarget(vector<int>&nums, int start, int target){
+    // 左指针改为从start开始，其他不变
+    int lo=start,hi=nums.size()-1;
+    vector<vector<int>>res;
+    while(lo<hi){
+        int sum=nums[lo]+nums[hi];
+        int left=nums[lo],right=nums[hi];
+        if(sum<target){
+            while(lo<hi && nums[lo]==left){
+                lo++;
+            }
+        }else if(sum>target){
+            while(lo<hi && nums[hi]==right){
+                hi--;
+            }
+        }else{
+            res.push_back({left,right});
+            while(lo<hi&&nums[lo]==left){
+                lo++;
+            }
+            while(lo<hi&&nums[hi]==right){
+                hi--;
+            }
+        }
+    }
+    return res;
+}
+
+/*计算数组nums中所有和为target的三元组*/
+vector<vector<int>>threeSumTarget(vector<int>&nums, int target){
+    //数组排序
+    sort(nums.begin(),nums.end());
+    int n=nums.size();
+    vector<vector<int>>res;
+    //穷举threeSum的第一个数
+    for(int i=0;i<n;i++){
+        //对target-nums[i]计算twoSum
+        vector<vector<int>> tuples=twoSumTarget(nums,i+1,target-nums[i]);
+        //如果存在满足条件的二元组，再加上nums[i]就是结果三元组
+        for(vector<int>&tuple:tuples){
+            tuple.push_back(nums[i]);
+            res.push_back(tuple);
+        }
+        //跳过第一个数字重复的情况，否则会出现重复结果
+        while(i<n-1&&nums[i]==nums[i+1]){
+            i++;
+        }
+    }
+    return res;
+}
+```
+
+**fourSum**
+
+```c++
+vector<vector<int>>fourSum(vector<int>&nums, int target){
+    // 数组需要排序
+    sort(nums.begin(),nums.end());
+    int n=nums.size();
+    vector<vector<int>>res;
+    //穷举fourSum的第一个数
+    for(int i=0;i<n;i++){
+        //对target-nums[i]计算threeSum
+        vector<vector<int>> triples=threeSumTarget(nums,i+1,target-nums[i]);
+        //如果存在满足条件的三元组，再加上nums[i]就是结果四元组
+        for(vector<int>&triple:triples){
+            triple.push_back(nums[i]);
+            res.push_back(triple);
+        }
+        //fourSum的第一个数不能重复
+        while(i<n-1&&nums[i]==nums[i+1]) i++;
+    }
+}
+
+vector<vector<int>>threeSumTarget(vector<int>&nums, int start, int target){
+    int n=nums.size();
+    vector<vector<int>>res;
+    //i从start开始穷举，其他都不变
+    for(int i=start;i<n;i++){
+        ...
+    }
+    return res;
+}
+```
+
+
+
+**模板总结**
+
+```c++
+//3Sum
+vector<vector<int>>threeSum(vector<int>&nums){
+    sort(nums.begin(),nums.end());
+    return nSumTarget(nums,3,0,0);
+}
+//4Sum
+vector<vector<int>> fourSum(vector<int> &nums, int target)
+    {
+        sort(nums.begin(), nums.end());
+        // n 为 4，从 nums[0] 开始计算和为 target 的四元组
+        return nSumTarget(nums, 4, 0, target);
+    }
+    vector<vector<int>> nSumTarget(
+        vector<int> &nums, int n, int start, int target)
+    {
+        int sz = nums.size();
+        vector<vector<int>> res;
+        // ⾄少是 2Sum，且数组⼤⼩不应该⼩于 n
+        if (n < 2 || sz < n)
+            return res;
+        // 2Sum 是 base case
+        if (n == 2)
+        {
+            // 双指针那⼀套操作
+            int lo = start, hi = sz - 1;
+            while (lo < hi)
+            {
+                int sum = nums[lo] + nums[hi];
+                int left = nums[lo], right = nums[hi];
+                if (sum < target)
+                {
+                    while (lo < hi && nums[lo] == left)
+                        lo++;
+                }
+                else if (sum > target)
+                {
+                    while (lo < hi && nums[hi] == right)
+                        hi--;
+                }
+                else
+                {
+                    res.push_back({left, right});
+                    while (lo < hi && nums[lo] == left)
+                        lo++;
+                    while (lo < hi && nums[hi] == right)
+                        hi--;
+                }
+            }
+        }
+        else
+        {
+            // n > 2 时，递归计算 (n-1)Sum 的结果
+            for (int i = start; i < sz; i++)
+            {
+                vector<vector<int>>
+                    sub = nSumTarget(nums, n - 1, i + 1, target - nums[i]);
+                for (vector<int> &arr : sub)
+                {
+                    // (n-1)Sum 加上 nums[i] 就是 nSum
+                    arr.push_back(nums[i]);
+                    res.push_back(arr);
+                }
+                while (i < sz - 1 && nums[i] == nums[i + 1])
+                    i++;
+            }
+        }
+        return res;
+    }
+```
+
+
+
 # 时间线1
 
 | Number |                          Question                          | Status |   Date   |
@@ -420,6 +622,11 @@ int right_bound(vector<int>&nums, int target){
 |  LC 3  |       longest-substring-without-repeating-characters       |  done  | 20231021 |
 | LC 704 |                       binary-search                        |  done  | 20231022 |
 | LC 34  |  find-first-and-last-position-of-element-in-sorted-array   |  done  | 20231023 |
+| LC 167 |              two-sum-ii-input-array-is-sorted              |  done  | 20231024 |
+| LC 15  |                           3-sum                            |  done  | 20231024 |
+| LC 18  |                           4-sum                            |  done  | 20231024 |
+| LC 344 |                       reverse-string                       |  done  | 20231024 |
+|  LC 5  |               longest-palindromic-substring                |  done  | 20231024 |
 |        |                                                            |        |          |
 |        |                                                            |        |          |
 |        |                                                            |        |          |
@@ -440,11 +647,20 @@ int right_bound(vector<int>&nums, int target){
 |        |                                                            |        |          |
 |        |                                                            |        |          |
 |        |                                                            |        |          |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
+
+剑指offer
+
+| Number  | Question | Status |   Date   |
+| :-----: | :------: | :----: | :------: |
+| LCR 007 | 三数之和 |  done  | 20231024 |
+|         |          |        |          |
+|         |          |        |          |
+|         |          |        |          |
+|         |          |        |          |
+
+
+
+
 
 # 时间线2
 
@@ -452,7 +668,7 @@ int right_bound(vector<int>&nums, int target){
 
 |   数据结构   | 类型 |       时间        |
 | :----------: | :--: | :---------------: |
-|     链表     |      | 20231018-20231022 |
+|     链表     |      | 20231018-20231024 |
 |     数组     |      |                   |
 |    二叉树    |      |                   |
 |      图      |      |                   |
@@ -503,6 +719,32 @@ int right_bound(vector<int>&nums, int target){
 | [34. 在排序数组中查找元素的第一个和最后一个位置](https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/) |      |      |
 | [704. 二分查找](https://leetcode.cn/problems/binary-search/) |      |      |
 | [剑指 Offer 53 - I. 在排序数组中查找数字 I](https://leetcode.cn/problems/zai-pai-xu-shu-zu-zhong-cha-zhao-shu-zi-lcof/) |      |      |
+
+
+
+### 数组-review
+
+| Number                                                       |      |      |
+| ------------------------------------------------------------ | ---- | ---- |
+| [167. 两数之和 II - 输入有序数组](https://leetcode.cn/problems/two-sum-ii-input-array-is-sorted/) |      |      |
+| [26. 删除有序数组中的重复项](https://leetcode.cn/problems/remove-duplicates-from-sorted-array/) |      |      |
+| [27. 移除元素](https://leetcode.cn/problems/remove-element/) |      |      |
+| [283. 移动零](https://leetcode.cn/problems/move-zeroes/)     |      |      |
+| [344. 反转字符串](https://leetcode.cn/problems/reverse-string/) |      |      |
+| [5. 最长回文子串](https://leetcode.cn/problems/longest-palindromic-substring/) |      |      |
+| [83. 删除排序链表中的重复元素](https://leetcode.cn/problems/remove-duplicates-from-sorted-list/) |      |      |
+| [剑指 Offer 57. 和为s的两个数字](https://leetcode.cn/problems/he-wei-sde-liang-ge-shu-zi-lcof/) |      |      |
+| [剑指 Offer II 006. 排序数组中两个数字之和](https://leetcode.cn/problems/kLl5u1/) |      |      |
+
+### nSum-review
+
+| Number                                                       |      |      |
+| ------------------------------------------------------------ | ---- | ---- |
+| [1. 两数之和](https://leetcode.cn/problems/two-sum/)         |      |      |
+| [15. 三数之和](https://leetcode.cn/problems/3sum/)           |      |      |
+| [167. 两数之和 II - 输入有序数组](https://leetcode.cn/problems/two-sum-ii-input-array-is-sorted/) |      |      |
+| [18. 四数之和](https://leetcode.cn/problems/4sum/)           |      |      |
+| [剑指 Offer II 007. 数组中和为 0 的三个数](https://leetcode.cn/problems/1fGaJU/) |      |      |
 
 
 
