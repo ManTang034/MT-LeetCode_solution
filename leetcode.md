@@ -745,6 +745,193 @@ vector<vector<int>> fourSum(vector<int> &nums, int target)
 
 
 
+
+
+# 动态规划
+
+> 动态规划的核心思想是穷举求最值，只有列出**<u>正确的状态转移方程</u>**，才能正确地穷举。而且，需要判断算法问题是否**<u>具备最优子结构</u>**，是否能够通过子问题的最值得到原问题的最值。另外，动态规划问题存在重叠子问题，如果暴力穷举的话效率会很低，所以需要使用**<u>备忘录</u>**或者**<u>DP table</u>**来优化穷举过程，避免不必要的计算。
+
+> **动态规划三要素：<u>重叠子问题</u>、<u>最优子结构</u>、<u>状态转移方程</u>**
+>
+> 明确base case->明确状态->明确选择->定义dp数组/函数的含义。
+
+```python
+# 自顶向下递归的动态规划
+def dp(状态1，状态2，...):
+    for 选择 in 所有可能的选择:
+        # 此时的状态已经因为做了选择而改变
+        result=求最值(result,dp(状态1,状态2,...))
+    return result
+
+# 自底向上迭代的动态规划
+# 初始化base case
+dp[0][0][...] = base case
+# 进行状态转移
+for 状态1 in 状态1的所有取值:
+    for 状态2 in 状态2的所有取值:
+        for ...
+        	dp[状态1][状态2][...] = 求最值(选择1,选择2,...)
+```
+
+
+
+## 斐波那契数列
+
+```c++
+/*暴力递归*/
+int fib(int n){
+    if(n==1||n==2) return n;
+    return fib(n-1)+fib(n-2);
+}
+
+/*带备忘录的递归解法*/
+int fib(int n){
+    //备忘录全初始化为0
+    int *memo=new int[n+1]();
+    return dp(memo,n);
+}
+
+//带着备忘录进行递归
+int dp(int memo[],int n){
+    //base case
+    if(n==1||n==0){
+        return n;
+    }
+    if(memo[n]!=0){
+        return memo[n];
+    }
+    memo[n]=dp(memo,n-1)+dp(memo,n-2);
+    return memo[n];
+}
+
+/*dp数组的迭代(递推)解法*/
+int fib(int n){
+    if(n==0) return 0;
+    int *dp=new int[n+1];
+    // base case
+    dp[0]=0;dp[1]=1;
+    //状态转移
+    for(int i=2;i<=n;i++){
+        dp[i]=dp[i-1]+dp[i-2];
+    }
+    return dp[n];
+}
+
+/*当前状态仅和n-1，n-2两个状态有关*/
+int fib(int n){
+    if(n==0||n==1) return n;
+    //分别代表dp[i-1]和dp[i-2]
+    int dp_i_1=1,dp_i_2=0;
+    for(int i=2;i<=n;i++){
+        int dp_i=dp_i_1+dp_i_2;
+        // 滚动更新
+        dp_i_2=dp_i_1;
+        dp_i_1=dp_i;
+    }
+    return dp_i_1;
+}
+```
+
+
+
+## 凑零钱问题
+
+1.暴力搜索法
+
+```c++
+int coinChange(vector<int>&coins,int amount){
+    return dp(coins,amount);
+}
+
+int dp(vector<int>&coins,int amount){
+    //base case
+    if(amount==0) return 0;
+    if(amount<0) return -1;
+    
+    int res=INT_MAX;
+    for(int coin:coins){
+        int subProblem=dp(coins,amount-coin);
+        if(subProblem==-1) continue;
+        res=min(res,subProblem+1);
+    }
+    
+    return res==INTMAX?-1:res;
+}
+```
+
+2.带备忘录的递归
+
+```c++
+class Solution {
+    private:
+        vector<int> memo;
+        
+        /**
+         * memo 数组记录了 amount 对应的最优解，-666 代表还未被计算。
+         * 因此，在计算 amount 对应的最优解时需要先查找 memo。
+         */
+        int dp(vector<int>& coins, int amount){
+            if(amount == 0) return 0; // 如果 amount = 0，那么硬币数量为 0
+            if(amount < 0) return -1; // 如果 amount < 0，那么无解
+            if(memo[amount] != -666) return memo[amount]; // 查备忘录，如果有最优解则直接返回
+            
+            int res = INT_MAX;
+            /**
+             * 在硬币数组 coins 中依次选取每个硬币。
+             * 对于当前选择的硬币，计算是包含该硬币所需的子问题的最优解 subProblem。
+             * 如果子问题无解，则直接跳过该硬币。
+             * 在所有子问题中，选取最优解，并加上该硬币的数量。
+             * 最终的结果 res 即为 amount 对应的最优解，该结果存入 memo 中。
+             */
+            for(int coin : coins){
+                int subProblem = dp(coins, amount - coin);
+                if(subProblem == -1) continue;
+                res = min(res, subProblem + 1);
+            }
+            
+            memo[amount] = res == INT_MAX ? -1 : res;
+            return memo[amount];
+        }
+        
+    public:
+        int coinChange(vector<int>& coins, int amount) {
+            /**
+             * 初始化备忘录 memo，memo 数组的长度为 amount+1。
+             * memo 数组记录了 amount 对应的最优解，-666 代表还未被计算。
+             * 因此，在计算 amount 对应的最优解时需要先查找 memo，再根据结果进行计算。
+             */
+            memo = vector<int>(amount + 1, -666);
+            return dp(coins, amount);
+        }
+};
+```
+
+3.dp数组的迭代解法
+
+```c++
+//dp数组的定义：当目标金额为i时，至少需要dp[i]枚硬币凑出
+int coinChange(vector<int>&coins,int amount){
+    vector<int>dp(amount+1,amount+1);
+    dp[0]=0;
+    
+    for(int i=0;i<dp.size();i++){
+        for(int coin:coins){
+            if(i-coin<0){
+                continue;
+            }
+            dp[i]=min(dp[i],dp[i-coin]+1);
+        }
+    }
+    return (dp[amount]==amount+1)?-1:dp[amount];
+}
+```
+
+
+
+
+
+
+
 # 时间线1
 
 | Number |                          Question                          | Status |   Date   |
