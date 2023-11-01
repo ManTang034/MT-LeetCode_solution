@@ -928,6 +928,17 @@ int coinChange(vector<int>&coins,int amount){
 
 
 
+## 最优子结构原理和dp数组遍历方向
+
+> 1. 到底什么才叫最优子结构，和动态规划什么关系。
+> 2. 如何判断一个问题是动态规划问题，即如何看出是否存在重叠子问题。
+> 3. 为什么经常看到将dp数组的大小设置为n+1而不是n。
+> 4. 为什么动态规划遍历dp数组的方式五花八门，有的正着遍历，有的倒着遍历，有的斜着遍历。
+
+
+
+
+
 
 
 
@@ -1121,6 +1132,9 @@ int coinChange(vector<int>&coins,int amount){
 | [322. 零钱兑换](https://leetcode.cn/problems/coin-change/)   |      |      |
 | [509. 斐波那契数](https://leetcode.cn/problems/fibonacci-number/) |      |      |
 | [剑指 Offer II 103. 最少的硬币数目](https://leetcode.cn/problems/gaM7Ch/) |      |      |
+| [300. 最长递增子序列](https://leetcode.cn/problems/longest-increasing-subsequence/) |      |      |
+| [354. 俄罗斯套娃信封问题](https://leetcode.cn/problems/russian-doll-envelopes/) |      |      |
+|                                                              |      |      |
 
 
 
