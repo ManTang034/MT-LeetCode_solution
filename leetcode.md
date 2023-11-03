@@ -937,6 +937,110 @@ int coinChange(vector<int>&coins,int amount){
 
 
 
+## 子序列类型问题
+
+### 经典动态规划：编辑距离
+
+1.暴力解法
+
+```c++
+if s1[i]==s2[j]:
+	啥都别做(skip);
+	i,j同时向前移动
+else:
+	三选一:
+		插入(insert);
+		删除(delete);
+		替换(replace);
+```
+
+```c++
+class Solution {
+public:
+    int minDistance(string word1, string word2) {
+        int m=word1.length();
+        int n=word2.length();
+        //i,j初始化指向最后一个索引
+        return dp(word1,m-1,word2,n-1);
+    }
+    //定义：返回s1[0..i]和s2[0..j]最小编辑距离
+    int dp(string s1,int i,string s2,int j){
+        //base case
+        if(i==-1) return j+1;
+        if(j==-1) return i+1;
+
+        if(s1[i]==s2[j]){
+            return dp(s1,i-1,s2,j-1);
+        }
+        return Min(
+            dp(s1,i,s2,j-1)+1, //插入
+            dp(s1,i-1,s2,j)+1, //删除
+            dp(s1,i-1,s2,j-1)+1 //替换
+        );
+    }
+    int Min(int a,int b,int c){
+        return min(min(a,b),c);
+    }
+};
+```
+
+> 暴力解法存在重叠子问题，如下所示，对于子问题`dp(i-1,j-1)`，如何通过原问题`dp(i,j)`得到呢？有不止一条路径，比如`dp(i,j)->#1`和`dp(i,j)->#2->#3`。一旦发现一条重复路径，就说明存在巨量重复路径，也就是重叠子问题。
+
+```c++
+int dp(i,j){
+    dp(i-1,j-1)+1; // #1
+    dp(i,j-1); // #2
+    dp(i-1,j); // #3
+}
+```
+
+2.动态规划优化
+
+**备忘录优化**
+
+```c++
+class Solution {
+private:
+    //备忘录
+    vector<vector<int>>memo;
+    int dp(string s1,int i,string s2,int j){
+        //base case
+        if(i==-1) return j+1;
+        if(j==-1) return i+1;
+        //查备忘录，避免重复子问题
+        if(memo[i][j]!=-1){
+            return memo[i][j];
+        }
+        //状态转移，结果存入备忘录
+        if(s1[i]==s2[j]){
+            memo[i][j]=dp(s1,i-1,s2,j-1);
+        }else{
+            memo[i][j]=Min(
+                dp(s1,i-1,s2,j)+1,
+                dp(s1,i,s2,j-1)+1,
+                dp(s1,i-1,s2,j-1)+1
+            );
+        }
+        return memo[i][j];
+    }
+public:
+    int minDistance(string word1, string word2) {
+        int m=word1.length(),n=word2.length();
+        //初始化备忘录
+        memo=vector<vector<int>>(m,vector<int>(n,-1));
+        return dp(word1,m-1,word2,n-1);
+    }
+    
+    int Min(int a,int b,int c){
+        return min(min(a,b),c);
+    }
+};
+```
+
+
+
+
+
 
 
 
@@ -978,9 +1082,9 @@ int coinChange(vector<int>&coins,int amount){
 |  LC 5  |               longest-palindromic-substring                |  done  | 20231024 |
 | LC 104 |                maximum-depth-of-binary-tree                |  done  | 20231025 |
 | LC 543 |                  diameter-of-binary-tree                   |  done  | 20231027 |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
+| LC 509 |                      fibonacci-number                      |  done  | 20231031 |
+| LC 322 |                        coin-change                         |  done  | 20231031 |
+| LC 300 |               longest-increasing-subsequence               |  done  | 20231101 |
 |        |                                                            |        |          |
 |        |                                                            |        |          |
 |        |                                                            |        |          |
@@ -1115,13 +1219,13 @@ int coinChange(vector<int>&coins,int amount){
 
 ## 阶段二：动态规划
 
-|     动态规划     | 类型 | 时间 |
-| :--------------: | :--: | :--: |
-| 动态规划基本技巧 |      |      |
-|  子序列类型问题  |      |      |
-|   背包类型问题   |      |      |
-| 用动态规划玩游戏 |      |      |
-|   贪心类型问题   |      |      |
+|     动态规划     | 类型 |   时间    |
+| :--------------: | :--: | :-------: |
+| 动态规划基本技巧 |      |           |
+|  子序列类型问题  |      | 20231103- |
+|   背包类型问题   |      |           |
+| 用动态规划玩游戏 |      |           |
+|   贪心类型问题   |      |           |
 
 
 
@@ -1134,7 +1238,7 @@ int coinChange(vector<int>&coins,int amount){
 | [剑指 Offer II 103. 最少的硬币数目](https://leetcode.cn/problems/gaM7Ch/) |      |      |
 | [300. 最长递增子序列](https://leetcode.cn/problems/longest-increasing-subsequence/) |      |      |
 | [354. 俄罗斯套娃信封问题](https://leetcode.cn/problems/russian-doll-envelopes/) |      |      |
-|                                                              |      |      |
+| [72. 编辑距离](https://leetcode.cn/problems/edit-distance/)  |      |      |
 
 
 
