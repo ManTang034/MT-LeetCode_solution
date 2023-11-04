@@ -26,36 +26,37 @@ using namespace std;
 // @lcpr-template-end
 // @lc code=start
 class Solution {
-private:
-    //备忘录
-    vector<vector<int>>memo;
-    int dp(string s1,int i,string s2,int j){
-        //base case
-        if(i==-1) return j+1;
-        if(j==-1) return i+1;
-        //查备忘录，避免重复子问题
-        if(memo[i][j]!=-1){
-            return memo[i][j];
-        }
-        //状态转移，结果存入备忘录
-        if(s1[i]==s2[j]){
-            memo[i][j]=dp(s1,i-1,s2,j-1);
-        }else{
-            memo[i][j]=Min(
-                dp(s1,i-1,s2,j)+1,
-                dp(s1,i,s2,j-1)+1,
-                dp(s1,i-1,s2,j-1)+1
-            );
-        }
-        return memo[i][j];
-    }
 public:
-    int minDistance(string word1, string word2) {
-        int m=word1.length(),n=word2.length();
-        //初始化备忘录
-        memo=vector<vector<int>>(m,vector<int>(n,-1));
-        return dp(word1,m-1,word2,n-1);
-    }
+    int minDistance(string s1, string s2) {
+        int m = s1.length(), n = s2.length();
+        // 定义：s1[0..i] 和 s2[0..j] 的最小编辑距离是 dp[i+1][j+1]
+        int dp[m + 1][n + 1];
+        dp[0][0]=0;
+        // base case 
+        for (int i = 1; i <= m; i++)
+            dp[i][0] = i;
+        for (int j = 1; j <= n; j++)
+            dp[0][j] = j;
+        // 自底向上求解
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (s1[i - 1] == s2[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = Min(
+                        dp[i - 1][j] + 1,
+
+                        dp[i][j - 1] + 1,
+
+                        dp[i - 1][j - 1] + 1
+
+                    );
+                }
+            }
+        }
+    // 储存着整个 s1 和 s2 的最小编辑距离
+    return dp[m][n];
+}
     
     int Min(int a,int b,int c){
         return min(min(a,b),c);

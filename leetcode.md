@@ -1037,9 +1037,71 @@ public:
 };
 ```
 
+3.dp数组
+
+```c++
+class Solution {
+public:
+    int minDistance(string s1, string s2) {
+        int m = s1.length(), n = s2.length();
+        // 定义：s1[0..i] 和 s2[0..j] 的最小编辑距离是 dp[i+1][j+1]
+        int dp[m + 1][n + 1];
+        dp[0][0]=0;
+        // base case 
+        for (int i = 1; i <= m; i++)
+            dp[i][0] = i;
+        for (int j = 1; j <= n; j++)
+            dp[0][j] = j;
+        // 自底向上求解
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (s1[i - 1] == s2[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = Min(
+                        dp[i - 1][j] + 1,
+
+                        dp[i][j - 1] + 1,
+
+                        dp[i - 1][j - 1] + 1
+
+                    );
+                }
+            }
+        }
+    // 储存着整个 s1 和 s2 的最小编辑距离
+    return dp[m][n];
+}
+    
+    int Min(int a,int b,int c){
+        return min(min(a,b),c);
+    }
+};
+```
 
 
 
+### 动态规划设计：最长递增子序列
+
+```c++
+int lengthOfLIS(vector<int>&nums){
+  	//定义：dp[i]表示以nums[i]这个数结尾的最长递增子序列的长度
+  	vector<int>dp(nums.size(),1);
+  	for(int i=0;i<nums.size();i++){
+    	for(int j=0;j<i;j++){
+      	if(nums[i]>nums[j]){
+        	dp[i]=max(dp[i],dp[j]+1);
+      	}
+    	}
+  	}
+  
+  	int res=0;
+  	for(int i=0;i<dp.size();i++){
+    	res=max(res,dp[i]);
+  	}
+  	return res;
+}
+```
 
 
 
@@ -1085,10 +1147,10 @@ public:
 | LC 509 |                      fibonacci-number                      |  done  | 20231031 |
 | LC 322 |                        coin-change                         |  done  | 20231031 |
 | LC 300 |               longest-increasing-subsequence               |  done  | 20231101 |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
+| LC 322 |                        coin-change                         |  done  | 20231101 |
+| LC 509 |                      fibonacci-number                      |  done  | 20231101 |
+| LC 543 |                  diameter-of-binary-tree                   |  done  | 20231101 |
+| LC 72  |                       edit-distance                        |  done  | 20231103 |
 |        |                                                            |        |          |
 |        |                                                            |        |          |
 |        |                                                            |        |          |
