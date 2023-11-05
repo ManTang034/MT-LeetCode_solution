@@ -1105,6 +1105,35 @@ int lengthOfLIS(vector<int>&nums){
 
 
 
+### 动态规划设计：最大子数组
+
+```c++
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        int n=nums.size();
+        if(n==0) return 0;
+        //定义:dp[i]记录以nums[i]为结尾的最大子数组和
+        vector<int>dp(n);
+        //base case
+        dp[0]=nums[0];
+        for(int i=1;i<n;i++){
+            dp[i]=max(nums[i],nums[i]+dp[i-1]);
+        }
+        //得到nums的最大子数组
+        return *max_element(dp.begin(),dp.end());
+    }
+};
+```
+
+
+
+
+
+
+
+
+
 
 
 
