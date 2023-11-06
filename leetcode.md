@@ -1128,6 +1128,93 @@ public:
 
 
 
+### 经典动态规划：最长公共子序列
+
+> 对于两个字符串求子序列的问题，都是用两个指针`i`和`j`分别在两个字符串上移动，大概率是动态规划思路。
+
+```c++
+class Solution {
+public:
+    int longestCommonSubsequence(string text1, string text2) {
+        int m=text1.length(),n=text2.length();
+        //定义:dp[0..i-1]和dp[0..j-1]的lcs长度为dp[i][j]
+        vector<vector<int>>dp(m+1,vector<int>(n+1,0));
+        for(int i=1;i<=m;i++){
+            for(int j=1;j<=n;j++){
+                if(text1[i-1]==text2[j-1]){
+                    dp[i][j]=1+dp[i-1][j-1];
+                }else{
+                    dp[i][j]=max(dp[i-1][j],dp[i][j-1]);
+                }
+            }
+        }
+        return dp[m][n];
+    }
+};
+```
+
+> **字符串的删除操作**
+
+```c++
+class Solution {
+public:
+    int minDistance(string word1, string word2) {
+        int m=word1.length(),n=word2.length();
+        int lcs=longestCommonSubsequence(word1,word2);
+        return m-lcs+n-lcs;
+    }
+
+    int longestCommonSubsequence(string s1,string s2){
+        int m=s1.length(),n=s2.length();
+        vector<vector<int>>dp(m+1,vector<int>(n+1,0));
+        for(int i=1;i<=m;i++){
+            for(int j=1;j<=n;j++){
+                if(s1[i-1]==s2[j-1]){
+                    dp[i][j]=1+dp[i-1][j-1];
+                }else{
+                    dp[i][j]=max(dp[i-1][j],dp[i][j-1]);
+                }
+            }
+        }
+        return dp[m][n];
+    }
+};
+```
+
+> **最小ASCII删除和**
+
+```c++
+class Solution {
+public:
+    vector<vector<int>>memo;
+    int minimumDeleteSum(string s1, string s2) {
+        int m=s1.length(),n=s2.length();
+        vector<vector<int>>dp(m+1,vector<int>(n+1,0));
+
+        for(int i=1;i<=m;i++){
+            dp[i][0]=dp[i-1][0]+s1[i-1];
+        }
+        for(int j=1;j<=n;j++){
+            dp[0][j]=dp[0][j-1]+s2[j-1];
+        }
+
+        for(int i=1;i<=m;i++){
+            for(int j=1;j<=n;j++){
+                if(s1[i-1]==s2[j-1]){
+                    dp[i][j]=dp[i-1][j-1];
+                }else{
+                    dp[i][j]=min(
+                        dp[i-1][j]+s1[i-1],
+                        dp[i][j-1]+s2[j-1]
+                    );
+                }
+            }
+        }
+        return dp[m][n];
+    }
+};
+```
+
 
 
 
@@ -1140,57 +1227,57 @@ public:
 
 # 时间线1
 
-| Number |                          Question                          | Status |   Date   |
-| :----: | :--------------------------------------------------------: | :----: | :------: |
-| LC 144 |               binary-tree-preorder-traversal               |  done  | 20231017 |
-| LC 94  |               binary-tree-inorder-traversal                |  done  | 20231017 |
-| LC 145 |              binary-tree-postorder-traversal               |  done  | 20231017 |
-| LC 105 | construct-binary-tree-from-preorder-and-inorder-traversal  |  done  | 20231017 |
-| LC 106 | construct-binary-tree-from-inorder-and-postorder-traversal |  done  | 20231017 |
-| LC 21  |                   merge-two-sorted-lists                   |  done  | 20231018 |
-| LC 86  |                       partition-list                       |  done  | 20231018 |
-| LC 230 |               kth-smallest-element-in-a-bst                |  done  | 20231018 |
-| LC 19  |              remove-nth-node-from-end-of-list              |  done  | 20231019 |
-| LC 23  |                    merge-k-sorted-lists                    |  done  | 20231019 |
-| LC 141 |                     linked-list-cycle                      |  done  | 20231020 |
-| LC 142 |                    linked-list-cycle-ii                    |  done  | 20231020 |
-| LC 160 |              intersection-of-two-linked-lists              |  done  | 20231020 |
-| LC 876 |                 middle-of-the-linked-list                  |  done  | 20231020 |
-| LC 26  |            remove-duplicates-from-sorted-array.            |  done  | 20231021 |
-| LC 83  |             remove-duplicates-from-sorted-list             |  done  | 20231021 |
-| LC 27  |                       remove-element                       |  done  | 20231021 |
-| LC 283 |                        move-zeroes                         |  done  | 20231021 |
-| LC 76  |                  minimum-window-substring                  |  done  | 20231021 |
-| LC 567 |                   permutation-in-string                    |  done  | 20231021 |
-| LC 438 |               find-all-anagrams-in-a-string                |  done  | 20231021 |
-|  LC 3  |       longest-substring-without-repeating-characters       |  done  | 20231021 |
-| LC 704 |                       binary-search                        |  done  | 20231022 |
-| LC 34  |  find-first-and-last-position-of-element-in-sorted-array   |  done  | 20231023 |
-| LC 167 |              two-sum-ii-input-array-is-sorted              |  done  | 20231024 |
-| LC 15  |                           3-sum                            |  done  | 20231024 |
-| LC 18  |                           4-sum                            |  done  | 20231024 |
-| LC 344 |                       reverse-string                       |  done  | 20231024 |
-|  LC 5  |               longest-palindromic-substring                |  done  | 20231024 |
-| LC 104 |                maximum-depth-of-binary-tree                |  done  | 20231025 |
-| LC 543 |                  diameter-of-binary-tree                   |  done  | 20231027 |
-| LC 509 |                      fibonacci-number                      |  done  | 20231031 |
-| LC 322 |                        coin-change                         |  done  | 20231031 |
-| LC 300 |               longest-increasing-subsequence               |  done  | 20231101 |
-| LC 322 |                        coin-change                         |  done  | 20231101 |
-| LC 509 |                      fibonacci-number                      |  done  | 20231101 |
-| LC 543 |                  diameter-of-binary-tree                   |  done  | 20231101 |
-| LC 72  |                       edit-distance                        |  done  | 20231103 |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
-|        |                                                            |        |          |
+| Number  |                          Question                          | Status |   Date   |
+| :-----: | :--------------------------------------------------------: | :----: | :------: |
+| LC 144  |               binary-tree-preorder-traversal               |  done  | 20231017 |
+|  LC 94  |               binary-tree-inorder-traversal                |  done  | 20231017 |
+| LC 145  |              binary-tree-postorder-traversal               |  done  | 20231017 |
+| LC 105  | construct-binary-tree-from-preorder-and-inorder-traversal  |  done  | 20231017 |
+| LC 106  | construct-binary-tree-from-inorder-and-postorder-traversal |  done  | 20231017 |
+|  LC 21  |                   merge-two-sorted-lists                   |  done  | 20231018 |
+|  LC 86  |                       partition-list                       |  done  | 20231018 |
+| LC 230  |               kth-smallest-element-in-a-bst                |  done  | 20231018 |
+|  LC 19  |              remove-nth-node-from-end-of-list              |  done  | 20231019 |
+|  LC 23  |                    merge-k-sorted-lists                    |  done  | 20231019 |
+| LC 141  |                     linked-list-cycle                      |  done  | 20231020 |
+| LC 142  |                    linked-list-cycle-ii                    |  done  | 20231020 |
+| LC 160  |              intersection-of-two-linked-lists              |  done  | 20231020 |
+| LC 876  |                 middle-of-the-linked-list                  |  done  | 20231020 |
+|  LC 26  |            remove-duplicates-from-sorted-array.            |  done  | 20231021 |
+|  LC 83  |             remove-duplicates-from-sorted-list             |  done  | 20231021 |
+|  LC 27  |                       remove-element                       |  done  | 20231021 |
+| LC 283  |                        move-zeroes                         |  done  | 20231021 |
+|  LC 76  |                  minimum-window-substring                  |  done  | 20231021 |
+| LC 567  |                   permutation-in-string                    |  done  | 20231021 |
+| LC 438  |               find-all-anagrams-in-a-string                |  done  | 20231021 |
+|  LC 3   |       longest-substring-without-repeating-characters       |  done  | 20231021 |
+| LC 704  |                       binary-search                        |  done  | 20231022 |
+|  LC 34  |  find-first-and-last-position-of-element-in-sorted-array   |  done  | 20231023 |
+| LC 167  |              two-sum-ii-input-array-is-sorted              |  done  | 20231024 |
+|  LC 15  |                           3-sum                            |  done  | 20231024 |
+|  LC 18  |                           4-sum                            |  done  | 20231024 |
+| LC 344  |                       reverse-string                       |  done  | 20231024 |
+|  LC 5   |               longest-palindromic-substring                |  done  | 20231024 |
+| LC 104  |                maximum-depth-of-binary-tree                |  done  | 20231025 |
+| LC 543  |                  diameter-of-binary-tree                   |  done  | 20231027 |
+| LC 509  |                      fibonacci-number                      |  done  | 20231031 |
+| LC 322  |                        coin-change                         |  done  | 20231031 |
+| LC 300  |               longest-increasing-subsequence               |  done  | 20231101 |
+| LC 322  |                        coin-change                         |  done  | 20231101 |
+| LC 509  |                      fibonacci-number                      |  done  | 20231101 |
+| LC 543  |                  diameter-of-binary-tree                   |  done  | 20231101 |
+|  LC 72  |                       edit-distance                        |  done  | 20231103 |
+|  LC 53  |                      maximum-subarray                      |  done  | 20231106 |
+| LC 1143 |                 longest-common-subsequence                 |  done  | 20231106 |
+| LC 583  |              delete-operation-for-two-strings              |  done  | 20231106 |
+| LC 712  |          minimum-ascii-delete-sum-for-two-strings          |  done  | 20231106 |
+|         |                                                            |        |          |
+|         |                                                            |        |          |
+|         |                                                            |        |          |
+|         |                                                            |        |          |
+|         |                                                            |        |          |
+|         |                                                            |        |          |
+|         |                                                            |        |          |
 
 **剑指offer**
 
@@ -1310,13 +1397,13 @@ public:
 
 ## 阶段二：动态规划
 
-|     动态规划     | 类型 |   时间    |
-| :--------------: | :--: | :-------: |
-| 动态规划基本技巧 |      |           |
-|  子序列类型问题  |      | 20231103- |
-|   背包类型问题   |      |           |
-| 用动态规划玩游戏 |      |           |
-|   贪心类型问题   |      |           |
+|     动态规划     | 类型 |       时间        |
+| :--------------: | :--: | :---------------: |
+| 动态规划基本技巧 |      |                   |
+|  子序列类型问题  |      | 20231103-20231106 |
+|   背包类型问题   |      |                   |
+| 用动态规划玩游戏 |      |                   |
+|   贪心类型问题   |      |                   |
 
 
 
@@ -1330,6 +1417,19 @@ public:
 | [300. 最长递增子序列](https://leetcode.cn/problems/longest-increasing-subsequence/) |      |      |
 | [354. 俄罗斯套娃信封问题](https://leetcode.cn/problems/russian-doll-envelopes/) |      |      |
 | [72. 编辑距离](https://leetcode.cn/problems/edit-distance/)  |      |      |
+| [53. 最大子数组和](https://leetcode.cn/problems/maximum-subarray/) |      |      |
+| [剑指 Offer 42. 连续子数组的最大和](https://leetcode.cn/problems/lian-xu-zi-shu-zu-de-zui-da-he-lcof/) |      |      |
+| [1143. 最长公共子序列](https://leetcode.cn/problems/longest-common-subsequence/) |      |      |
+| [583. 两个字符串的删除操作](https://leetcode.cn/problems/delete-operation-for-two-strings/) |      |      |
+| [712. 两个字符串的最小ASCII删除和](https://leetcode.cn/problems/minimum-ascii-delete-sum-for-two-strings/) |      |      |
+| [剑指 Offer II 095. 最长公共子序列](https://leetcode.cn/problems/qJnOS7/) |      |      |
+| [1312. 让字符串成为回文串的最少插入次数](https://leetcode.cn/problems/minimum-insertion-steps-to-make-a-string-palindrome/) |      |      |
+| [516. 最长回文子序列](https://leetcode.cn/problems/longest-palindromic-subsequence/) |      |      |
+|                                                              |      |      |
+|                                                              |      |      |
+|                                                              |      |      |
+|                                                              |      |      |
+|                                                              |      |      |
 
 
 
