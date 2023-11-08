@@ -1272,7 +1272,7 @@ for i in [1..N]:
 return dp[N][W]
 ```
 
-第四步：把伪代码翻译成代码，处理一些边界情况
+**第四步：把伪代码翻译成代码，处理一些边界情况**
 
 ```c++
 int knapsack(int W, int N, vector<int>& wt, vector<int>& val) {
@@ -1295,7 +1295,157 @@ int knapsack(int W, int N, vector<int>& wt, vector<int>& val) {
 }
 ```
 
+### 经典动态规划：0-1背包问题的变体
 
+416.分割等和子集
+
+```c++
+class Solution {
+public:
+    bool canPartition(vector<int>& nums) {
+        int sum=0;
+        for(int num:nums) sum+=num;
+        //和为奇数时，不可能划分成两个和相等的集合
+        if(sum%2!=0) return false;
+        int n=nums.size();
+        sum=sum/2;
+        vector<vector<bool>>dp(n+1,vector<bool>(sum+1,false));
+        //base case
+        for(int i=0;i<=n;i++){
+            dp[i][0]=true;
+        }
+
+        for(int i=1;i<=n;i++){
+            for(int j=1;j<=sum;j++){
+                if(j-nums[i-1]<0){
+                    //背包容量不足，不能装入第i个物品
+                    dp[i][j]=dp[i-1][j];
+                }else{
+                    //装入或不装入背包
+                    dp[i][j]=dp[i-1][j] | dp[i-1][j-nums[i-1]];
+                }
+            }
+        }
+        return dp[n][sum];
+    }
+};
+```
+
+> **进行状态压缩**
+>
+> 注意到`dp[i][j]`都是通过上一行`dp[i-1][..]`转移过来的，之前的数据都不会再使用了。
+>
+> 所以可以进行状态压缩，将二维`dp`数组压缩为一维，节约空间复杂度
+
+```c++
+bool canPartition(vector<int>& nums) {
+    int sum = 0, n = nums.size();
+    for (int num : nums) sum += num;
+    if (sum % 2 != 0) return false;
+    sum = sum / 2;
+    vector<bool> dp(sum + 1, false);
+    // base case
+    dp[0] = true;
+
+    for (int i = 0; i < n; i++) 
+        for (int j = sum; j >= 0; j--) 
+            if (j - nums[i] >= 0) 
+                dp[j] = dp[j] || dp[j - nums[i]];
+
+    return dp[sum];
+}
+```
+
+> 主要注意的是`j`应该从后往前反向遍历，因为每个物品（或者说数字）只能用一次，以免之前的结果影响其他的结果。
+
+### 经典动态规划：完全背包问题
+
+**第一步：明确状态和选择**
+
+> 状态有两个，就是背包的容量和可选择的物品，选择就是装进背包或不装进背包。
+
+```c++
+for 状态1 in 状态1的所有取值:
+	for 状态2 in 状态2的所有取值:
+		for ...
+            dp[状态1][状态2][...]=计算(选择1,选择2,...)
+```
+
+**第二步：明确dp数组的定义**
+
+> 若只使用前`i`个物品，当背包容量为`j`时，有`dp[i][j]`种方法可以装满背包。即只使用`coins`中的前`i`个硬币的面值，若想凑出金额`j`，有`dp[i][j]`种凑法。
+>
+> base case为`dp[0][..]=0,dp[..][0]=1`。因为如果不使用任何硬币面值，就无法凑出任何金额；如果凑出的目标金额为0，那么“无为而治”就是唯一一种凑法。
+>
+> 最终想得到的答案是`dp[N][amount]`，其中`N`为`coins`数组的大小。
+
+```c++
+int dp[N+1][amount+1]
+dp[0][..]=0
+dp[..][0]=1
+    
+for i in [1..N]:
+	for j in [1..amount]:
+		把物品i装进背包,
+		不把物品i装进背包
+return dp[N][amount]
+```
+
+**第三步：根据选择，思考状态转移的逻辑**
+
+> 如果不把第`i`个物品装入背包，那么凑出面额`j`的方法`dp[i][j]`应该等于`dp[i-1][j]`，继承之前的结果。
+>
+> 如果把第`i`个物品装入背包，那么`dp[i][j]`应该等于`dp[i][j-coins[i-1]]`
+
+```c++
+for(int i=1;i<=n;i++){
+    for(int j=1;j<=amount;j++){
+        if(j-coins[i-1]>=0){
+            dp[i][j]=dp[i-1][j]+dp[i][j-coins[i-1]];
+        }
+    }
+}
+```
+
+```c++
+int change(int amount, vector<int>&coins){
+    int n=coins.size();
+    vector<vector<int>>dp(n+1,vector<int>(amount+1));
+    //base case
+    for(int i=0;i<=n;i++){
+        dp[i][0]=1;
+    }
+    
+    for(int i=1;i<=n;i++){
+        for(int j=1;j<=amount;j++){
+            if(j-coins[i-1]>=0){
+                dp[i][j]=dp[i-1][j]+dp[i][j-coins[i-1]];
+            }else{
+                dp[i][j]=dp[i-1][j];
+            }
+        }
+    }
+    return dp[n][amount];
+}
+```
+
+> 状态压缩
+
+```c++
+int change(int amount, vector<int>&coins){
+    int n=coins.size();
+    vector<int>dp(amount+1);
+    dp[0]=1;
+    for(int i=0;i<n;i++){
+        for(int j=1;j<=amount;j++){
+            if(j-coins[i]>=0){
+                dp[j]=dp[j]+dp[j-coins[i]];
+            }
+        }
+    }
+    return dp[amount];
+}
+```
 
 
 
