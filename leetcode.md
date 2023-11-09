@@ -1449,6 +1449,262 @@ int change(int amount, vector<int>&coins){
 
 
 
+## 用动态规划玩游戏
+
+### 团灭LeetCode股票买卖问题
+
+**一、穷举框架**
+
+> 每天都有三种选择：买入、卖出、无操作，使用`buy`,`sell`,`rest`表示这三种选择。
+>
+> 但不是每天都可以任意选择三种选择的，因为`sell`必须在`buy`之后，`buy`必须在`sell`之后。`rest`操作还分为两种状态，一种是`buy`之后的`rest`(持有了股票)，一种是`sell`之后的`rest`(没有持有股票)。且交易次数`k`的限制，就是说`buy`只能在`k>0`的前提下操作。
+
+> 这个问题的状态有三个，第一个是天数，第二个是允许交易的最大次数，第三个是当前的持有状态（1表示持有，0表示没有持有）。使用三维数组就可以装下这几种状态的全部组合：
+
+```c++
+dp[i][k][0 or 1]
+0 <= i <= n-1, 1 <= k <=K
+n为天数，K为交易数的上限，0和1代表是否持有股票。
+此问题共n*K*2种状态，全部穷举就能搞定。
+    
+for 0<=i<n-1:
+	for 1<=k<=K:
+		for s in {0,1}:
+			dp[i][k][s] = max(buy,sell,rest)
+```
+
+> 想求的最终答案是`dp[n-1][K][0]`，即最后一天，最多允许`K`次交易，最多获得多少利润。
+
+二、状态转移框架
+
+```c++
+dp[i][k][0]=max(dp[i-1][k][0], dp[i-1][k][1]+prices[i])
+```
+
+> 解释：我今天没有持有股票，有两种可能：
+>
+> 1. 昨天就没有持有，且截至昨天最大交易次数限制为`k`；然后今天选择`rest`，所以今天仍然没有持有，最大交易次数限制依然为`k`。
+> 2. 昨天持有股票，且截至昨天最大交易次数限制为`k`；但今天选择`sell`，所以今天没有持有股票，最大交易次数限制依然为`k`。
+
+```c++
+dp[i][k][1]=max(dp[i-1][k][1], dp[i-1][k-1][0]-prices[i])
+```
+
+> 1. 昨天就持有着股票，且截至昨天最大交易次数限制为`k`；然后今天选择`rest`，所以我今天还持有着股票，最大交易次数限制依然为`k`
+>
+> 2. 昨天本没有持有，且截至昨天最大交易次数限制为`k-1`；但今天选择`buy`，所以今天持有股票，最大交易次数限制为`k`
+
+定义base case
+
+```c++
+dp[-1][...][0] = 0
+解释：因为 i 是从 0 开始的，所以 i = -1 意味着还没有开始，这时候的利润当然是 0。
+
+dp[-1][...][1] = -infinity
+解释：还没开始的时候，是不可能持有股票的。
+因为我们的算法要求一个最大值，所以初始值设为一个最小值，方便取最大值。
+
+dp[...][0][0] = 0
+解释：因为 k 是从 1 开始的，所以 k = 0 意味着根本不允许交易，这时候利润当然是 0。
+
+dp[...][0][1] = -infinity
+解释：不允许交易的情况下，是不可能持有股票的。
+因为我们的算法要求一个最大值，所以初始值设为一个最小值，方便取最大值。
+```
+
+```c++
+base case：
+dp[-1][...][0] = dp[...][0][0] = 0
+dp[-1][...][1] = dp[...][0][1] = -infinity
+
+状态转移方程：
+dp[i][k][0] = max(dp[i-1][k][0], dp[i-1][k][1] + prices[i])
+dp[i][k][1] = max(dp[i-1][k][1], dp[i-1][k-1][0] - prices[i])
+```
+
+
+
+121.买卖股票的最佳时机
+
+k=1
+
+```c++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int n=prices.size();
+        vector<vector<int>>dp(n,vector<int>(2));
+        for(int i=0;i<n;i++){
+            if(i-1==-1){
+                dp[i][0]=0;
+                dp[i][1]=-prices[i];
+                continue;
+            }
+            dp[i][0]=max(dp[i-1][0],dp[i-1][1]+prices[i]);
+            dp[i][1]=max(dp[i-1][1],-prices[i]);
+        }
+        return dp[n-1][0];
+    }
+};
+```
+
+122.买卖股票的最佳时机II
+
+k=+infinity
+
+```c++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int n=prices.size();
+        vector<vector<int>>dp(n,vector<int>(2));
+        for(int i=0;i<n;i++){
+            if(i-1==-1){
+                dp[i][0]=0;
+                dp[i][1]=-prices[i];
+                continue;
+            }
+            dp[i][0]=max(dp[i-1][0],dp[i-1][1]+prices[i]);
+            dp[i][1]=max(dp[i-1][1],dp[i-1][0]-prices[i]);
+        }
+        return dp[n-1][0];
+    }
+};
+```
+
+123.买卖股票的最佳时机III
+
+```c++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int max_k=2,n=prices.size();
+        vector<vector<vector<int>>>dp(n,vector<vector<int>>(max_k+1,vector<int>(2)));
+        for(int i=0;i<n;i++){
+            for(int k=max_k;k>=1;k--){
+                if(i-1==-1){
+                    //base case
+                    dp[i][k][0]=0;
+                    dp[i][k][1]=-prices[i];
+                    continue;
+                }
+                dp[i][k][0]=max(dp[i-1][k][0],dp[i-1][k][1]+prices[i]);
+                dp[i][k][1]=max(dp[i-1][k][1],dp[i-1][k-1][0]-prices[i]);
+            }
+        }
+        return dp[n-1][max_k][0];
+    }
+};
+```
+
+188.买卖股票的最佳时机IV
+
+```c++
+class Solution {
+public:
+    int maxProfit(int max_k, vector<int>& prices) {
+        int n=prices.size();
+        if(n<=0) return 0;
+        if(max_k>n/2){
+            maxProfit_inf(prices);
+        }
+        vector<vector<vector<int>>>dp(n,vector<vector<int>>(max_k+1,vector<int>(2)));
+        for(int i=0;i<n;i++){
+            dp[i][0][1]=INT_MIN;
+            dp[i][0][0]=0;
+        }
+        for(int i=0;i<n;i++){
+            for(int k=max_k;k>=1;k--){
+                if(i-1==-1){
+                    //base case
+                    dp[i][k][0]=0;
+                    dp[i][k][1]=-prices[i];
+                    continue;
+                }
+                dp[i][k][0]=max(dp[i-1][k][0],dp[i-1][k][1]+prices[i]);
+                dp[i][k][1]=max(dp[i-1][k][1],dp[i-1][k-1][0]-prices[i]);
+            }
+        }
+        return dp[n-1][max_k][0];
+    }
+
+    int maxProfit_inf(vector<int>& prices) {
+        int n=prices.size();
+        vector<vector<int>>dp(n,vector<int>(2));
+        for(int i=0;i<n;i++){
+            if(i-1==-1){
+                dp[i][0]=0;
+                dp[i][1]=-prices[i];
+                continue;
+            }
+            dp[i][0]=max(dp[i-1][0],dp[i-1][1]+prices[i]);
+            dp[i][1]=max(dp[i-1][1],dp[i-1][0]-prices[i]);
+        }
+        return dp[n-1][0];
+    }
+};
+```
+
+
+
+
+
+309.买卖股票的最佳时机含冷冻期
+
+```c++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int n=prices.size();
+        vector<vector<int>>dp(n,vector<int>(2));
+        for(int i=0;i<n;i++){
+            if(i-1==-1){
+                dp[i][0]=0;
+                dp[i][1]=-prices[i];
+                continue;
+            }
+            if(i-2==-1){
+                dp[i][0]=max(dp[i-1][0],dp[i-1][1]+prices[i]);
+                dp[i][1]=max(dp[i-1][1],-prices[i]);
+                continue;
+            }
+            dp[i][0]=max(dp[i-1][0],dp[i-1][1]+prices[i]);
+            dp[i][1]=max(dp[i-1][1],dp[i-2][0]-prices[i]);
+        }
+        return dp[n-1][0];
+    }
+};
+```
+
+
+
+714.买卖股票的最佳时机含手续费
+
+```c++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices, int fee) {
+        int n=prices.size();
+        vector<vector<int>>dp(n,vector<int>(2));
+        for(int i=0;i<n;i++){
+            if(i-1==-1){
+                //base case
+                dp[i][0]=0;
+                dp[i][1]=-prices[i]-fee;
+                continue;
+            }
+            dp[i][0]=max(dp[i-1][0],dp[i-1][1]+prices[i]);
+            dp[i][1]=max(dp[i-1][1],dp[i-1][0]-prices[i]-fee);
+        }
+        return dp[n-1][0];
+    }
+};
+```
+
+
+
+
+
 
 
 
@@ -1499,6 +1755,26 @@ int change(int amount, vector<int>&coins){
 | LC 1143 |                 longest-common-subsequence                 |  done  | 20231106 |
 | LC 583  |              delete-operation-for-two-strings              |  done  | 20231106 |
 | LC 712  |          minimum-ascii-delete-sum-for-two-strings          |  done  | 20231106 |
+| LC 416  |                 partition-equal-subset-sum                 |  done  | 20231108 |
+| LC 518  |                       coin-change-ii                       |  done  | 20231108 |
+| LC 121  |              best-time-to-buy-and-sell-stock               |  done  | 20231109 |
+| LC 122  |             best-time-to-buy-and-sell-stock-ii             |  done  | 20231109 |
+| LC 309  |       best-time-to-buy-and-sell-stock-with-cooldown        |  done  | 20231109 |
+| LC 714  |    best-time-to-buy-and-sell-stock-with-transaction-fee    |  done  | 20231109 |
+| LC 123  |            best-time-to-buy-and-sell-stock-iii             |  done  | 20231109 |
+| LC 188  |             best-time-to-buy-and-sell-stock-iv             |  done  | 20231109 |
+|         |                                                            |        |          |
+|         |                                                            |        |          |
+|         |                                                            |        |          |
+|         |                                                            |        |          |
+|         |                                                            |        |          |
+|         |                                                            |        |          |
+|         |                                                            |        |          |
+|         |                                                            |        |          |
+|         |                                                            |        |          |
+|         |                                                            |        |          |
+|         |                                                            |        |          |
+|         |                                                            |        |          |
 |         |                                                            |        |          |
 |         |                                                            |        |          |
 |         |                                                            |        |          |
@@ -1653,6 +1929,16 @@ int change(int amount, vector<int>&coins){
 | [剑指 Offer II 095. 最长公共子序列](https://leetcode.cn/problems/qJnOS7/) |      |      |
 | [1312. 让字符串成为回文串的最少插入次数](https://leetcode.cn/problems/minimum-insertion-steps-to-make-a-string-palindrome/) |      |      |
 | [516. 最长回文子序列](https://leetcode.cn/problems/longest-palindromic-subsequence/) |      |      |
+| [121. 买卖股票的最佳时机](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/) |      |      |
+| [122. 买卖股票的最佳时机 II](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/) |      |      |
+| [123. 买卖股票的最佳时机 III](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iii/) |      |      |
+| [188. 买卖股票的最佳时机 IV](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/) |      |      |
+| [309. 最佳买卖股票时机含冷冻期](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/) |      |      |
+| [714. 买卖股票的最佳时机含手续费](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/) |      |      |
+| [剑指 Offer 63. 股票的最大利润](https://leetcode.cn/problems/gu-piao-de-zui-da-li-run-lcof/) |      |      |
+|                                                              |      |      |
+|                                                              |      |      |
+|                                                              |      |      |
 |                                                              |      |      |
 |                                                              |      |      |
 |                                                              |      |      |
