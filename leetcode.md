@@ -10,6 +10,31 @@
 >
 > 分治思想的优势在于能够将复杂的问题分解成简单的子问题，每个子问题的解决都是独立的，从而降低了问题的复杂性。同时，分治思想也利用了递归的特性，使得问题的表达更加简洁清晰。
 
+
+
+# 单调栈（Monotonic Stack）
+
+> - 特点：单调栈是一个维护元素单调性（递增或递减）的栈。栈顶元素是栈中的最值（最大值或最小值）。
+> - 应用场景：
+>   - 求元素的下一个更大元素或下一个更小元素
+> - 实现方式：
+>   - 使用栈作为底层实现
+>   - 保证栈中的元素满足单调性，即栈顶到栈底的元素依次递增或递减。
+>   - 在插入元素时，比较当前元素与栈顶元素的大小。如果当前元素比栈顶元素大（或小），则出栈，直到满足单调性。
+>   - 在取最值操作时，直接返回栈顶元素即可。
+
+
+
+
+
+
+
+
+
+
+
+
+
 # 二叉堆
 
 ## 泛型编程
@@ -1703,6 +1728,134 @@ public:
 
 
 
+### 团灭Leetcode打家劫舍问题
+
+> 面前房子的索引就是状态，抢和不抢就是选择。
+
+**198.打家劫舍**
+
+如果两间相邻的房屋在同一晚上被盗走闯入，系统会自动报警。
+
+空间复杂度：O(n)
+
+```c++
+class Solution {
+public:
+    int rob(vector<int>& nums) {
+        int n=nums.size();
+        //dp[i]表示从第i间房子开始抢劫，最多能抢劫到的钱
+        //base case:dp[n]=0即走过最后一间房后就没有可以抢劫的了
+        vector<int>dp(n+2);
+        for(int i=n-1;i>=0;i--){
+            dp[i]=max(dp[i+1],nums[i]+dp[i+2]);
+        }
+        return dp[0];
+    }
+};
+```
+
+空间复杂度：O(1)
+
+```c++
+class Solution {
+public:
+    int rob(vector<int>& nums) {
+        int n=nums.size();
+        //记录dp[i+1]和dp[i+2]
+        int dp_i_1=0,dp_i_2=0;
+        int dp_i=0;
+        for(int i=n-1;i>=0;i--){
+            dp_i=max(dp_i_1,dp_i_2+nums[i]);
+            dp_i_2=dp_i_1;
+            dp_i_1=dp_i;
+        }
+        return dp_i;
+    }
+};
+```
+
+213.打家劫舍II
+
+强盗依然不能抢劫相邻的房子，但这些房子围成了一个圈。
+
+> 只有三种不同情况：要么都不被抢；要么第一间房子被抢最后一间不抢；要么最后一间房子被抢第一间不抢。情况二和情况三肯定比情况一多，所以只需比较情况二和情况三。
+
+```c++
+class Solution {
+public:
+    int rob(vector<int>& nums) {
+        int n=nums.size();
+        if(n==1) return nums[0];
+        //第一间被抢，最后一间不抢
+        //第一间不抢，最后一间抢
+        return max(robRange(nums,0,n-2),robRange(nums,1,n-1));
+    }
+
+    int robRange(vector<int>&nums,int start,int end){
+        int n=nums.size();
+        int dp_i_1=0,dp_i_2=0;
+        int dp_i=0;
+        for(int i=end;i>=start;i--){
+            dp_i=max(dp_i_1,dp_i_2+nums[i]);
+            dp_i_2=dp_i_1;
+            dp_i_1=dp_i;
+        }
+        return dp_i;
+    }
+};
+```
+
+337.打家劫舍III
+
+> 在`rob`函数中，首先调用`dp`函数来计算根节点为起点的最大收益，然后返回其中较大的值。在`dp`函数中，我们使用递归的方式处理每个节点以及其左右子树的情况。
+>
+> 对于每个节点，我们用一个包含两个元素的数组来表示两种情况下的最大收益。数组中的第一个元素表示不抢劫该节点时的最大收益，第二个元素表示抢劫该节点时的最大收益、当递归到叶子节点时，返回{0,0}表示不抢劫时和抢劫时的收益都是0.
+>
+> 在递归的过程中，对于当前节点，我们分别计算了抢劫该节点和不抢劫该节点两种情况下的最大收益。具体来说，如果选择抢劫该节点，那么左右子树的节点就不能抢劫，因此我们累加当前节点的值和左右子树不抢劫时的最大收益；如果选择不抢劫该节点，那么我们可以灵活选择左右子树抢或者不抢，取收益最大的情况作为当前节点不抢劫时的最大收益。
+>
+> 最终，我们返回这两种情况下的最大收益数组，然后在`rob`函数中取其中较大的值作为最终结果返回。
+
+```c++
+class Solution {
+public:
+    int rob(TreeNode* root) {
+        vector<int>res=dp(root);
+        return max(res[0],res[1]);
+    }
+
+    vector<int>dp(TreeNode*root){
+        if(root==nullptr){
+            return {0,0};
+        }
+        vector<int>left=dp(root->left);
+        vector<int>right=dp(root->right);
+        //抢，下家不能抢
+        int rob = root->val+left[0]+right[0];
+        //不抢，下家可抢可不抢，取决于收益大小
+        int not_rob=max(left[0],left[1])+max(right[0],right[1]);
+        return {not_rob,rob};
+    }
+};
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1936,11 +2089,11 @@ public:
 | [309. 最佳买卖股票时机含冷冻期](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/) |      |      |
 | [714. 买卖股票的最佳时机含手续费](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/) |      |      |
 | [剑指 Offer 63. 股票的最大利润](https://leetcode.cn/problems/gu-piao-de-zui-da-li-run-lcof/) |      |      |
-|                                                              |      |      |
-|                                                              |      |      |
-|                                                              |      |      |
-|                                                              |      |      |
-|                                                              |      |      |
+| [198. 打家劫舍](https://leetcode.cn/problems/house-robber/)  |      |      |
+| [213. 打家劫舍 II](https://leetcode.cn/problems/house-robber-ii/) |      |      |
+| [337. 打家劫舍 III](https://leetcode.cn/problems/house-robber-iii/) |      |      |
+| [剑指 Offer II 089. 房屋偷盗](https://leetcode.cn/problems/Gu0c2T/) |      |      |
+| [剑指 Offer II 090. 环形房屋偷盗](https://leetcode.cn/problems/PzWKhm/) |      |      |
 |                                                              |      |      |
 |                                                              |      |      |
 |                                                              |      |      |
