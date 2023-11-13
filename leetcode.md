@@ -23,9 +23,66 @@
 >   - 在插入元素时，比较当前元素与栈顶元素的大小。如果当前元素比栈顶元素大（或小），则出栈，直到满足单调性。
 >   - 在取最值操作时，直接返回栈顶元素即可。
 
+> 给定一个数组[2,1,2,4,3]，返回数组[4,2,4,-1,-1]
 
+```c++
+vector<int>nextGreaterElement(vector<int>&nums){
+    vector<int>ans(nums.size()); //存放答案的数组
+    stack<int>s;
+    for(int i=nums.size()-1;i>=0;i--){ //倒着往栈里放
+        while(!s.empty()&&s.top()<=nums[i]){ //判定个子高矮
+            s.pop(); //抛弃矮个
+        }
+        ans[i]=s.empty()?-1:s.top(); //这个元素身后的第一个高个
+        s.push(nums[i]); //进栈
+    }
+    return ans;
+}
+```
 
+> 给你一个数组 T = [73, 74, 75, 71, 69, 72, 76, 73]，这个数组存放的是近几天的天气气温（这气温是铁板烧？不是的，这里用的华氏度）。你返回一个数组，计算：对于每一天，你还要至少等多少天才能等到一个更暖和的气温；如果等不到那一天，填 0 。
+>
+> 举例：给你 T = [73, 74, 75, 71, 69, 72, 76, 73]，你返回 [1, 1, 4, 2, 1, 1, 0, 0]。
 
+```c++
+vector<int>dailyTemperatures(vector<int>&T){
+    vector<int>ans(T.size());
+    stack<int>s; //存放元素索引，而不是元素
+    for(int i=T.size()-1;i>=0;i--){
+        while(!s.empty()&&T[s.top()]<=T[i]){
+            s.pop();
+        }
+        ans[i]=s.empty()?0:(s.top()-i); //得到索引间距
+        s.push(i); //加入索引，而不是元素
+    }
+    return ans;
+}
+```
+
+> **处理循环数组**
+>
+> 给你一个数组 [2,1,2,4,3]，你返回数组 [4,2,4,-1,4]。拥有了环形属性，最后一个元素 3 绕了一圈后找到了比自己大的元素 4 。
+>
+> 回到 Next Greater Number 的问题，增加了环形属性后，问题的难点在于：这个 Next 的意义不仅仅是当前元素的右边了，有可能出现在当前元素的左边（如上例）。
+>
+> 明确问题，问题就已经解决了一半了。我们可以考虑这样的思路：将原始数组“翻倍”，就是在后面再接一个原始数组，这样的话，按照之前“比身高”的流程，每个元素不仅可以比较自己右边的元素，而且也可以和左边的元素比较了。
+
+```c++
+vector<int>nextGreaterElements(vector<int>&nums){
+    int n=nums.size();
+    vector<int>res(n);
+    stack<int>s;
+    //假装这个数组长度翻倍了
+    for(int i=2*n-1;i>=0;i--){
+        while(!s.empty()&&s.top()<=nums[i%n]){
+            s.pop();
+        }
+        res[i%n]=s.empty()?-1:s.top();
+        s.push(nums[i%n]);
+    }
+    return res;
+}
+```
 
 
 
@@ -1864,77 +1921,77 @@ public:
 
 # 时间线1
 
-| Number  |                          Question                          | Status |   Date   |
-| :-----: | :--------------------------------------------------------: | :----: | :------: |
-| LC 144  |               binary-tree-preorder-traversal               |  done  | 20231017 |
-|  LC 94  |               binary-tree-inorder-traversal                |  done  | 20231017 |
-| LC 145  |              binary-tree-postorder-traversal               |  done  | 20231017 |
-| LC 105  | construct-binary-tree-from-preorder-and-inorder-traversal  |  done  | 20231017 |
-| LC 106  | construct-binary-tree-from-inorder-and-postorder-traversal |  done  | 20231017 |
-|  LC 21  |                   merge-two-sorted-lists                   |  done  | 20231018 |
-|  LC 86  |                       partition-list                       |  done  | 20231018 |
-| LC 230  |               kth-smallest-element-in-a-bst                |  done  | 20231018 |
-|  LC 19  |              remove-nth-node-from-end-of-list              |  done  | 20231019 |
-|  LC 23  |                    merge-k-sorted-lists                    |  done  | 20231019 |
-| LC 141  |                     linked-list-cycle                      |  done  | 20231020 |
-| LC 142  |                    linked-list-cycle-ii                    |  done  | 20231020 |
-| LC 160  |              intersection-of-two-linked-lists              |  done  | 20231020 |
-| LC 876  |                 middle-of-the-linked-list                  |  done  | 20231020 |
-|  LC 26  |            remove-duplicates-from-sorted-array.            |  done  | 20231021 |
-|  LC 83  |             remove-duplicates-from-sorted-list             |  done  | 20231021 |
-|  LC 27  |                       remove-element                       |  done  | 20231021 |
-| LC 283  |                        move-zeroes                         |  done  | 20231021 |
-|  LC 76  |                  minimum-window-substring                  |  done  | 20231021 |
-| LC 567  |                   permutation-in-string                    |  done  | 20231021 |
-| LC 438  |               find-all-anagrams-in-a-string                |  done  | 20231021 |
-|  LC 3   |       longest-substring-without-repeating-characters       |  done  | 20231021 |
-| LC 704  |                       binary-search                        |  done  | 20231022 |
-|  LC 34  |  find-first-and-last-position-of-element-in-sorted-array   |  done  | 20231023 |
-| LC 167  |              two-sum-ii-input-array-is-sorted              |  done  | 20231024 |
-|  LC 15  |                           3-sum                            |  done  | 20231024 |
-|  LC 18  |                           4-sum                            |  done  | 20231024 |
-| LC 344  |                       reverse-string                       |  done  | 20231024 |
-|  LC 5   |               longest-palindromic-substring                |  done  | 20231024 |
-| LC 104  |                maximum-depth-of-binary-tree                |  done  | 20231025 |
-| LC 543  |                  diameter-of-binary-tree                   |  done  | 20231027 |
-| LC 509  |                      fibonacci-number                      |  done  | 20231031 |
-| LC 322  |                        coin-change                         |  done  | 20231031 |
-| LC 300  |               longest-increasing-subsequence               |  done  | 20231101 |
-| LC 322  |                        coin-change                         |  done  | 20231101 |
-| LC 509  |                      fibonacci-number                      |  done  | 20231101 |
-| LC 543  |                  diameter-of-binary-tree                   |  done  | 20231101 |
-|  LC 72  |                       edit-distance                        |  done  | 20231103 |
-|  LC 53  |                      maximum-subarray                      |  done  | 20231106 |
-| LC 1143 |                 longest-common-subsequence                 |  done  | 20231106 |
-| LC 583  |              delete-operation-for-two-strings              |  done  | 20231106 |
-| LC 712  |          minimum-ascii-delete-sum-for-two-strings          |  done  | 20231106 |
-| LC 416  |                 partition-equal-subset-sum                 |  done  | 20231108 |
-| LC 518  |                       coin-change-ii                       |  done  | 20231108 |
-| LC 121  |              best-time-to-buy-and-sell-stock               |  done  | 20231109 |
-| LC 122  |             best-time-to-buy-and-sell-stock-ii             |  done  | 20231109 |
-| LC 309  |       best-time-to-buy-and-sell-stock-with-cooldown        |  done  | 20231109 |
-| LC 714  |    best-time-to-buy-and-sell-stock-with-transaction-fee    |  done  | 20231109 |
-| LC 123  |            best-time-to-buy-and-sell-stock-iii             |  done  | 20231109 |
-| LC 188  |             best-time-to-buy-and-sell-stock-iv             |  done  | 20231109 |
-|         |                                                            |        |          |
-|         |                                                            |        |          |
-|         |                                                            |        |          |
-|         |                                                            |        |          |
-|         |                                                            |        |          |
-|         |                                                            |        |          |
-|         |                                                            |        |          |
-|         |                                                            |        |          |
-|         |                                                            |        |          |
-|         |                                                            |        |          |
-|         |                                                            |        |          |
-|         |                                                            |        |          |
-|         |                                                            |        |          |
-|         |                                                            |        |          |
-|         |                                                            |        |          |
-|         |                                                            |        |          |
-|         |                                                            |        |          |
-|         |                                                            |        |          |
-|         |                                                            |        |          |
+| Number  |                          Question                          | Status |   Date   |      |
+| :-----: | :--------------------------------------------------------: | :----: | :------: | ---- |
+| LC 144  |               binary-tree-preorder-traversal               |  done  | 20231017 | 1    |
+|  LC 94  |               binary-tree-inorder-traversal                |  done  | 20231017 | 2    |
+| LC 145  |              binary-tree-postorder-traversal               |  done  | 20231017 | 3    |
+| LC 105  | construct-binary-tree-from-preorder-and-inorder-traversal  |  done  | 20231017 | 4    |
+| LC 106  | construct-binary-tree-from-inorder-and-postorder-traversal |  done  | 20231017 | 5    |
+|  LC 21  |                   merge-two-sorted-lists                   |  done  | 20231018 | 6    |
+|  LC 86  |                       partition-list                       |  done  | 20231018 | 7    |
+| LC 230  |               kth-smallest-element-in-a-bst                |  done  | 20231018 | 8    |
+|  LC 19  |              remove-nth-node-from-end-of-list              |  done  | 20231019 | 9    |
+|  LC 23  |                    merge-k-sorted-lists                    |  done  | 20231019 | 10   |
+| LC 141  |                     linked-list-cycle                      |  done  | 20231020 | 11   |
+| LC 142  |                    linked-list-cycle-ii                    |  done  | 20231020 | 12   |
+| LC 160  |              intersection-of-two-linked-lists              |  done  | 20231020 | 13   |
+| LC 876  |                 middle-of-the-linked-list                  |  done  | 20231020 | 14   |
+|  LC 26  |            remove-duplicates-from-sorted-array.            |  done  | 20231021 | 15   |
+|  LC 83  |             remove-duplicates-from-sorted-list             |  done  | 20231021 | 16   |
+|  LC 27  |                       remove-element                       |  done  | 20231021 | 17   |
+| LC 283  |                        move-zeroes                         |  done  | 20231021 | 18   |
+|  LC 76  |                  minimum-window-substring                  |  done  | 20231021 | 19   |
+| LC 567  |                   permutation-in-string                    |  done  | 20231021 | 20   |
+| LC 438  |               find-all-anagrams-in-a-string                |  done  | 20231021 | 21   |
+|  LC 3   |       longest-substring-without-repeating-characters       |  done  | 20231021 | 22   |
+| LC 704  |                       binary-search                        |  done  | 20231022 | 23   |
+|  LC 34  |  find-first-and-last-position-of-element-in-sorted-array   |  done  | 20231023 | 24   |
+| LC 167  |              two-sum-ii-input-array-is-sorted              |  done  | 20231024 | 25   |
+|  LC 15  |                           3-sum                            |  done  | 20231024 | 26   |
+|  LC 18  |                           4-sum                            |  done  | 20231024 | 27   |
+| LC 344  |                       reverse-string                       |  done  | 20231024 | 28   |
+|  LC 5   |               longest-palindromic-substring                |  done  | 20231024 | 29   |
+| LC 104  |                maximum-depth-of-binary-tree                |  done  | 20231025 | 30   |
+| LC 543  |                  diameter-of-binary-tree                   |  done  | 20231027 | 31   |
+| LC 509  |                      fibonacci-number                      |  done  | 20231031 | 32   |
+| LC 322  |                        coin-change                         |  done  | 20231031 | 33   |
+| LC 300  |               longest-increasing-subsequence               |  done  | 20231101 | 34   |
+| LC 322  |                        coin-change                         |  done  | 20231101 | 35   |
+| LC 509  |                      fibonacci-number                      |  done  | 20231101 | 36   |
+| LC 543  |                  diameter-of-binary-tree                   |  done  | 20231101 | 37   |
+|  LC 72  |                       edit-distance                        |  done  | 20231103 | 38   |
+|  LC 53  |                      maximum-subarray                      |  done  | 20231106 | 39   |
+| LC 1143 |                 longest-common-subsequence                 |  done  | 20231106 | 40   |
+| LC 583  |              delete-operation-for-two-strings              |  done  | 20231106 | 41   |
+| LC 712  |          minimum-ascii-delete-sum-for-two-strings          |  done  | 20231106 | 42   |
+| LC 416  |                 partition-equal-subset-sum                 |  done  | 20231108 | 43   |
+| LC 518  |                       coin-change-ii                       |  done  | 20231108 | 44   |
+| LC 121  |              best-time-to-buy-and-sell-stock               |  done  | 20231109 | 45   |
+| LC 122  |             best-time-to-buy-and-sell-stock-ii             |  done  | 20231109 | 46   |
+| LC 309  |       best-time-to-buy-and-sell-stock-with-cooldown        |  done  | 20231109 | 47   |
+| LC 714  |    best-time-to-buy-and-sell-stock-with-transaction-fee    |  done  | 20231109 | 48   |
+| LC 123  |            best-time-to-buy-and-sell-stock-iii             |  done  | 20231109 | 49   |
+| LC 188  |             best-time-to-buy-and-sell-stock-iv             |  done  | 20231109 | 50   |
+| LC 198  |                        house-robber                        |  done  | 20231113 | 51   |
+| LC 213  |                      house-robber-ii                       |  done  | 20231113 | 52   |
+| LC 337  |                      house-robber-iii                      |  done  | 20231113 | 53   |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
 
 **剑指offer**
 
