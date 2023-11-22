@@ -1899,13 +1899,693 @@ public:
 
 
 
+# 回溯算法
+
+解决一个回溯问题，实际上就是一个决策树的遍历过程。只需思考3个问题：
+
+1. 路径：也就是已经做出的选择
+2. 选择列表：也就是当前可以做的选择
+3. 结束条件：也就是到达决策树底层，无法再做选择的条件
+
+```python
+result = []
+def backtrack(路径,选择列表):
+    if 满足结束条件:
+        result.add(路径)
+        return
+    
+    for 选择 in 选择列表:
+        # 做选择
+        将该选择从选择列表移除
+        路径.add(选择)
+        backtrack(路径，选择列表)
+        # 撤销选择
+        路径.remove(选择)
+        将该选择再加入选择列表
+```
+
+## **全排列**
+
+```c++
+class Solution {
+private:
+    vector<vector<int>>res;
+
+    /*主函数，输入一组不重复的数字，返回它们的全排列*/
+    vector<vector<int>>Permute(vector<int>&nums){
+        //记录路径
+        vector<int>track;
+        //路径中的元素会被标记为true，避免重复使用
+        vector<bool>used(nums.size(),false);
+
+        backtrack(nums,track,used);
+        return res;
+    }
+
+    //路径：记录在track中
+    //选择列表：nums中不存在于track的那些元素
+    //结束条件：nums中的元素全都在track中出现
+    void backtrack(vector<int>&nums,vector<int>&track,vector<bool>&used){
+        //触发结束条件
+        if(track.size()==nums.size()){
+            res.push_back(track);
+            return;
+        }
+
+        for(int i=0;i<nums.size();i++){
+            //排除不合法选择
+            if(used[i]){
+                //nums[i]已经在track中，跳过
+                continue;
+            }
+            //做选择
+            track.push_back(nums[i]);
+            used[i]=true;
+            //进入下一层决策树
+            backtrack(nums,track,used);
+            //取消选择
+            track.pop_back();
+            used[i]=false;
+        }
+    }
+public:
+    vector<vector<int>> permute(vector<int>& nums) {
+        return Permute(nums);
+    }
+};
+```
+
+## **n皇后问题**
+
+> 因为皇后是一行一行从上往下放的，所以左下方，右下方和正下方不用检查（还没放皇后）；因为一行只会放一个皇后，所以每行不用检查。也就是最后只用检查上面，左上，右上三个方向。
+
+```c++
+class Solution {
+public:
+    vector<vector<string>>res;
+
+    /*输入棋盘边长n，返回所有合法的放置*/
+    vector<vector<string>> solveNQueens(int n) {
+        vector<string>board(n,string(n,'.'));
+        backtrack(board,0);
+        return res;
+    }
+
+    //路径：board中小于row的那些行都已经成功放置了皇后
+    //选择列表：第row行的所有列都是放置皇后的选择
+    //结束条件：row超过board的最后一行
+    void backtrack(vector<string>&board, int row){
+        //触发结束条件
+        if(row==board.size()){
+            res.push_back(board);
+            return;
+        }
+
+        int n=board[row].size();
+        for(int col=0;col<n;col++){
+            //排除不合法选择
+            if(!isValid(board,row,col)){
+                continue;
+            }
+            //做选择
+            board[row][col]='Q';
+            //进入下一行决策
+            backtrack(board,row+1);
+            //撤销选择
+            board[row][col]='.';
+        }
+    }
+
+    bool isValid(vector<string>&board,int row,int col){
+        int n=board.size();
+        //检查列是否有皇后互相冲突
+        for(int i=0;i<=row;i++){
+            if(board[i][col]=='Q'){
+                return false;
+            }
+        }
+        //检查右上方是否有皇后互相冲突
+        for(int i=row-1,j=col+1;i>=0&&j<n;i--,j++){
+            if(board[i][j]=='Q'){
+                return false;
+            }
+        }
+        //检查左上方是否有皇后互相冲突
+        for(int i=row-1,j=col-1;i>=0&&j>=0;i--,j--){
+            if(board[i][j]=='Q'){
+                return false;
+            }
+        }
+        return true;
+    }
+};
+```
+
+## 解数独
+
+```c++
+class Solution {
+public:
+    void solveSudoku(vector<vector<char>>& board) {
+        backtrack(board,0,0);
+    }
+
+    bool backtrack(vector<vector<char>>& board, int i, int j) {
+        int m = 9, n = 9;
+        if (j == n) {
+            // 穷举到最后一列的话就换到下一行重新开始。
+            return backtrack(board, i + 1, 0);
+        }
+        if (i == m) {
+            // 找到一个可行解，触发 base case
+            return true;
+        }
+
+        if (board[i][j] != '.') {
+            // 如果有预设数字，不用我们穷举
+            return backtrack(board, i, j + 1);
+        } 
+
+        for (char ch = '1'; ch <= '9'; ch++) {
+            // 如果遇到不合法的数字，就跳过
+            if (!isValid(board, i, j, ch))
+                continue;
+            
+            board[i][j] = ch;
+            // 如果找到一个可行解，立即结束
+            if (backtrack(board, i, j + 1)) {
+                return true;
+            }
+            board[i][j] = '.';
+        }
+        // 穷举完 1~9，依然没有找到可行解，此路不通
+        return false;
+    }
+
+    //判断board[i][j]是否可以填入n
+    bool isValid(vector<vector<char>>&board,int r,int c,char n){
+        for(int i=0;i<9;i++){
+            //判断行是否存在重复
+            if(board[r][i]==n) return false;
+            //判断列是否存在重复
+            if(board[i][c]==n) return false;
+            //判断3*3方框是否存在重复
+            if(board[(r/3)*3+i/3][(c/3)*3+i%3]==n) return false;
+        }
+        return true;
+    }
+};
+```
+
+## 秒杀所有排列/组合/子集问题
+
+> 无论是排列、组合还是子集问题，无非就是从序列`nums`中以给定规则取若干元素，主要有以下几种变体：
+>
+> **<u>形式1：元素无重不可复选，即`nums`中的元素都是唯一的，每个元素最多只能被使用一次，这也是最基本的形式。</u>**
+>
+> **<u>形式2：元素可重不可复选，即`nums`中的元素可以存在重复，每个元素最多只能被使用一次。</u>**
+>
+> **<u>形式3：元素无重可复选，即`nums`中的元素都是唯一的，每个元素可以被使用若干次。</u>**
+
+### 78.子集(元素无重不可复选)
+
+给定一个整数数组`nums`，数组中的元素互不相同。返回该数组所有可能的子集。
+
+解集不能包含重复的子集，可以按任意顺序返回解集。
+
+```c++
+class Solution {
+private:
+    vector<vector<int>>res;
+    //记录回溯算法的递归路径
+    vector<int>track;
+public:
+    vector<vector<int>> subsets(vector<int>& nums) {
+        backtrack(nums,0);
+        return res;
+    }
+
+    void backtrack(vector<int>&nums,int start){
+        //前序位置，每个节点的值都是一个子集
+        res.push_back(track);
+
+        //回溯算法标准框架
+        for(int i=start;i<nums.size();i++){
+            //做选择
+            track.push_back(nums[i]);
+            //通过start参数控制树枝的遍历，避免产生重复的子集
+            backtrack(nums,i+1);
+            //撤销选择
+            track.pop_back();
+        }
+    }
+};
+```
+
+### 77.组合(元素无重不可复选)
+
+给定两个整数`n`和`k`，返回范围`[1,n]`中所有可能的`k`个数的组合。
+
+> 组合和子集是一样的：大小为`k`的组合就是大小为`k`的子集。
+
+```c++
+class Solution {
+public:
+    vector<vector<int>>res;
+    vector<int>track;
+
+    vector<vector<int>> combine(int n, int k) {
+        backtrack(1,n,k);
+        return res;
+    }
+
+    void backtrack(int start,int n,int k){
+        //base case
+        if(k==track.size()){
+            //遍历到了第k层，收集当前节点的值
+            res.push_back(track);
+            return;
+        }
+
+        //回溯算法标准框架
+        for(int i=start;i<=n;i++){
+            //选择
+            track.push_back(i);
+            backtrack(i+1,n,k);
+            //撤销选择
+            track.pop_back();
+        }
+    }
+};
+```
+
+### 46.全排列(元素无重不可复选)
+
+组合/子集问题使用`start`变量保证元素`nums[start]`之后只会出现`nums[start+1..]`中的元素，通过固定元素的相对位置保证不出现重复的子集。
+
+但排列问题本身就是穷举元素的位置，`nums[i]`之后也可以出现`nums[i]`左边的元素，需要使用额外`used`数组来标记哪些元素还可以被选择。
+
+```c++
+class Solution {
+public:
+    // 存储所有排列结果的列表
+    vector<vector<int>> res;
+    // 记录回溯算法的递归路径
+    vector<int> track;
+    // 标记数字使用状态的数组，0 表示未被使用，1 表示已被使用
+    vector<bool>used;
+
+    /* 主函数，输入一组不重复的数字，返回它们的全排列 */
+    vector<vector<int>> permute(vector<int>& nums) {
+        used=vector<bool>(nums.size(),false);
+        // 满足回溯框架时需要添加 bool 类型默认初始化为 false
+        backtrack(nums);
+        return res;
+    }
+
+    // 回溯算法核心函数
+    void backtrack(vector<int>& nums) {
+        // base case，到达叶子节点
+        if (track.size() == nums.size()) {
+            // 收集叶子节点上的值
+            res.push_back(track);
+            return;
+        }
+        // 回溯算法标准框架
+        for (int i = 0; i < nums.size(); i++) {
+            // 已经存在 track 中的元素，不能重复选择
+            if (used[i]) {
+                continue;
+            }
+            // 做选择
+            used[i] = true;
+            track.push_back(nums[i]);
+            // 进入下一层回溯树
+            backtrack(nums);
+            // 取消选择
+            track.pop_back();
+            used[i] = false;
+        }
+    }
+};
+```
+
+如果是算元素个数为`k`的排列，则改`backtrack`函数的`base case`，仅收集第`k`层的节点值即可
+
+```c++
+// 回溯算法核心函数
+void backtrack(vector<int>& nums, int k, vector<vector<int>>& res, vector<int>& track) {
+    // base case，到达第 k 层，收集节点的值
+    if (track.size() == k) {
+        // 第 k 层节点的值就是大小为 k 的排列
+        res.push_back(track);
+        return;
+    }
+
+    // 回溯算法标准框架
+    for (int i = 0; i < nums.size(); i++) {
+        // ...
+        backtrack(nums, k, res, track);
+        // ...
+    }
+}
+```
+
+### 90.子集II(元素可重不可复选)
+
+两条值相同的相邻树枝会产生重复，所以需要进行剪枝，如果一个节点有多条值相同的树枝相邻，则只遍历第一条，剩下的都剪掉，不遍历。
+
+```c++
+class Solution {
+public:
+    vector<vector<int>>res;
+    vector<int>track;
+
+    vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+        //排序让相同的元素呆在一起
+        sort(nums.begin(),nums.end());
+        backtrack(nums,0);
+        return res;
+    }
+
+    void backtrack(vector<int>&nums,int start){
+        res.push_back(track);
+
+        for(int i=start;i<nums.size();i++){
+            //剪枝逻辑，值相同的相邻树枝，只遍历第一条
+            if(i>start&&nums[i]==nums[i-1]){
+                continue;
+            }
+            track.push_back(nums[i]);
+            backtrack(nums,i+1);
+            track.pop_back();
+        }
+    }
+};
+```
+
+### 40.组合总和II(元素可重不可复选)
+
+给定一个候选人编号的集合`candidates`和一个目标数`target`，找出`candidates`中所有可以使数字和为`target`的组合。
+
+```c++
+vector<vector<int>> res;
+    //记录回溯的路径
+    vector<int> track;
+    //记录 track 中的元素之和
+    int trackSum = 0;
+
+    vector<vector<int>> combinationSum2(vector<int>& candidates, int target) {
+        // 先排序，让相同的元素靠在一起
+        sort(candidates.begin(), candidates.end());
+        backtrack(candidates, 0, target);
+        return res;
+    }
+
+    //回溯算法主函数
+    void backtrack(vector<int>& nums, int start, int target) {
+        //base case，达到目标和，找到符合条件的组合
+        if(trackSum == target) {
+            res.push_back(track);
+            return;
+        }
+        //base case，超过目标和，直接结束
+        if(trackSum > target) {
+            return;
+        }
+
+        //回溯算法标准框架
+        for(int i = start; i < nums.size(); i++) {
+            //剪枝逻辑，值相同的树枝，只遍历第一条
+            if(i > start && nums[i] == nums[i-1]) {
+                continue;
+            }
+            //做选择
+            track.push_back(nums[i]);
+            trackSum += nums[i];
+            //递归遍历下一层回溯树
+            backtrack(nums, i+1, target);
+            //撤销选择
+            track.pop_back();
+            trackSum -= nums[i];
+        }
+    }
+```
+
+### 47.全排列II(元素可重不可复选)
+
+给定一个可包含重复数字的序列`nums`，按任意顺序返回所有不重复的全排列。
+
+```c++
+class Solution {
+public:
+    vector<vector<int>>res; //保存结果
+    vector<int>track; //记录当前位置的元素
+    vector<bool>used; //记录元素是否被使用
+
+    vector<vector<int>> permuteUnique(vector<int>& nums) {
+        //排序，让相同的元素靠在一起
+        sort(nums.begin(),nums.end());
+        //初始化used数组
+        used=vector<bool>(nums.size(),false);
+        backtrack(nums);
+        return res;
+    }
+
+    void backtrack(vector<int>&nums){
+        //当长度相等时，记录结果
+        if(track.size()==nums.size()){
+            res.push_back(track);
+            return;
+        }
+
+        //遍历没有被使用过的元素
+        for(int i=0;i<nums.size();i++){
+            if(used[i]){
+                continue;
+            }
+            //剪枝
+            if(i>0&&nums[i]==nums[i-1]&&!used[i-1]){
+                continue;
+            }
+            //添加元素，标记为使用过
+            track.push_back(nums[i]);
+            used[i]=true;
+            //继续回溯
+            backtrack(nums);
+            track.pop_back();
+            used[i]=false;
+        }
+    }
+};
+```
+
+> 对比全排列解法代码，这段解法代码只有两处不同：
+>
+> 1. 对`nums`进行了排序
+> 2. 添加了一句额外的剪枝逻辑。
+>
+> 注意排列问题的剪枝逻辑，和子集/组合问题的剪枝逻辑略有不同：新增了`!used[i-1]`的逻辑判断。
+>
+> 标准全排列算法之所以出现重复，是因为把相同元素形成的排列序列视为不同的序列，但实际上它们应该是相同的；而如果固定相同元素形成的序列顺序，当然就避免了重复。
+
+```c++
+if(i>0&&nums[i]==nums[i-1]&&!used[i-1]){
+    //如果前面的相邻相等元素没有用过，则跳过
+    continue;
+}
+```
+
+> 当出现重复元素时，比如输入`nums=[1,2,2',2'']`，`2'`只有在`2`已经被使用的情况下才会被选择，同理，`2''`只有在`2'`已经被使用的情况下才会被选择，这就保证了相同元素在排列中的相对位置保证固定。
+
+### 39.组合总和(元素无重可复选)
+
+给定一个无重复元素的整数数组`candidates`和一个目标整数`target`，找出`candidates`中可以使数字和为目标数`target`的所有不同组合，并以列表形式返回。`candidates`中的同一个数字可以无限制重复被选取。如果至少一个数字的备选数量不同，则两种组合是不同的。
+
+> `i`从`start`开始，下一层回溯树从`start+1`开始，从而保证`nums[start]`这个元素不会被重复使用；反过来，如果想让每个元素被重复使用，只要把`i+1`改成`i`即可。
+
+```c++
+class Solution {
+public:
+    vector<vector<int>>res;
+    vector<int>track;
+    int trackSum=0;
+
+    vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
+        backtrack(candidates,0,target);
+        return res;
+    }
+
+    void backtrack(vector<int>&nums,int start,int target){
+        //base case，找到目标和，记录结果
+        if(trackSum==target){
+            res.push_back(track);
+            return;
+        }
+        //base case，超过目标和，停止向下遍历
+        if(trackSum>target){
+            return;
+        }
+
+        for(int i=start;i<nums.size();i++){
+            trackSum+=nums[i];
+            track.push_back(nums[i]);
+            backtrack(nums,i,target);
+            trackSum-=nums[i];
+            track.pop_back();
+        }
+    }
+};
+```
 
 
 
+### 排列(元素无重可复选)
+
+> 标准的全排列算法使用`used`数组进行剪枝，避免重复使用同一个元素。如果允许重复使用元素的话，直接去除所有`used`数组的剪枝逻辑就行。
+
+```c++
+class Solution {
+public:
+    vector<vector<int>> res;
+    vector<int> track;
+
+    vector<vector<int>> permuteUnique(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+        backtrack(nums);
+        return res;
+    }
+
+    void backtrack(vector<int>& nums) {
+        if (track.size() == nums.size()) {
+            res.push_back(track);
+            return;
+        }
+
+        for (int i = 0; i < nums.size(); i++) {
+            //剪枝操作，判断当前节点是否已经在track中
+            if (i > 0 && nums[i] == nums[i - 1] && find(track.begin(), track.end(), nums[i - 1]) != track.end()) {
+                continue;
+            }
+            track.push_back(nums[i]);
+            backtrack(nums);
+            track.pop_back();
+        }
+    }
+};
+```
 
 
 
+### 总结
 
+**形式一：元素无重不可复选，即`nums`中的元素都是唯一的，每个元素最多只能被使用一次**，`backtrack`核心代码如下：
+
+```c++
+void backtrack(vector<int>& nums, int start) {
+    // 回溯算法标准框架
+    for (int i = start; i < nums.size(); i++) {
+        // 做选择
+        track.push_back(nums[i]);
+        // 注意参数
+        backtrack(nums, i + 1);
+        // 撤销选择
+        track.pop_back();
+    }
+}
+
+void backtrack(vector<int>& nums) {
+    for (int i = 0; i < nums.size(); i++) {
+        // 剪枝逻辑
+        if (used[i]) {
+            continue;
+        }
+        // 做选择
+        used[i] = true;
+        track.push_back(nums[i]);
+        backtrack(nums);
+        // 撤销选择
+        track.pop_back();
+        used[i] = false;
+    }
+}
+```
+
+**形式二：元素可重不可复选，即`nums`中的元素可以存在重复，每个元素最多只能被使用一次，其关键在于排序和剪枝**，`backtrack`核心代码如下：
+
+```c++
+sort(nums.begin(), nums.end());
+
+/* 组合/子集问题回溯算法框架 */
+void backtrack(vector<int>& nums, int start) {
+    //回溯算法标准框架
+    for (int i = start; i < nums.size(); i++) {
+        // 剪枝逻辑，跳过值相同的相邻树枝
+        if (i > start && nums[i] == nums[i - 1]) {
+            continue;
+        }
+        // 做选择
+        track.push_back(nums[i]);
+        // 注意参数
+        backtrack(nums, i + 1);
+        // 撤销选择
+        track.pop_back();
+    }
+}
+
+sort(nums.begin(), nums.end());
+
+/* 排列问题回溯算法框架 */
+void backtrack(vector<int>& nums, vector<bool>& used) {
+    for (int i = 0; i < nums.size(); i++) {
+        // 剪枝逻辑
+        if (used[i]) {
+            continue;
+        }
+        // 剪枝逻辑，固定相同的元素在排列中的相对位置
+        if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) {
+            continue;
+        }
+        // 做选择
+        used[i] = true;
+        track.push_back(nums[i]);
+
+        backtrack(nums, used);
+        // 撤销选择
+        track.pop_back();
+        used[i] = false;
+    }
+}
+```
+
+形式三：元素无重可复选，即`nums`中的元素都是唯一的，每个元素可以被使用若干次，只要删掉去重逻辑即可，`backtrack`核心代码如下：
+
+```c++
+/* 组合/子集问题回溯算法框架 */
+void backtrack(vector<int>& nums, int start, vector<int>& track) {
+    // 回溯算法标准框架
+    for (int i = start; i < nums.size(); i++) {
+        // 做选择
+        track.push_back(nums[i]);
+        // 注意参数
+        backtrack(nums, i, track);
+        // 撤销选择
+        track.pop_back();
+    }
+}
+
+
+/* 排列问题回溯算法框架 */
+void backtrack(vector<int>& nums, vector<int>& track) {
+    for (int i = 0; i < nums.size(); i++) {
+        // 做选择
+        track.push_back(nums[i]);
+        backtrack(nums, track);
+        // 撤销选择
+        track.pop_back();
+    }
+}
+```
 
 
 
@@ -1976,16 +2656,16 @@ public:
 | LC 198  |                        house-robber                        |  done  | 20231113 | 51   |
 | LC 213  |                      house-robber-ii                       |  done  | 20231113 | 52   |
 | LC 337  |                      house-robber-iii                      |  done  | 20231113 | 53   |
-|         |                                                            |        |          |      |
-|         |                                                            |        |          |      |
-|         |                                                            |        |          |      |
-|         |                                                            |        |          |      |
-|         |                                                            |        |          |      |
-|         |                                                            |        |          |      |
-|         |                                                            |        |          |      |
-|         |                                                            |        |          |      |
-|         |                                                            |        |          |      |
-|         |                                                            |        |          |      |
+|  LC 46  |                        permutations                        |  done  | 20231122 | 54   |
+|  LC 51  |                          n-queens                          |  done  | 20231122 | 55   |
+|  LC 52  |                        n-queens-ii                         |  done  | 20231122 | 56   |
+|  LC 37  |                       sudoku-solver                        |  done  | 20231122 | 57   |
+|  LC 78  |                          subsets                           |  done  | 20231122 | 58   |
+|  LC 77  |                        combinations                        |  done  | 20231122 | 59   |
+|  LC 90  |                         subsets-ii                         |  done  | 20231122 | 60   |
+|  LC 40  |                     combination-sum-ii                     |  done  | 20231122 | 61   |
+|  LC 47  |                      permutations-ii                       |  done  | 20231122 | 62   |
+|  LC 39  |                      combination-sum                       |  done  | 20231122 | 63   |
 |         |                                                            |        |          |      |
 |         |                                                            |        |          |      |
 |         |                                                            |        |          |      |
@@ -2174,4 +2854,30 @@ public:
 | 暴力搜索算法 |      |      |
 | 数学运算技巧 |      |      |
 |  经典面试题  |      |      |
+
+
+
+### 回溯算法-review
+
+| Number                                                       |      |      |
+| ------------------------------------------------------------ | ---- | ---- |
+| [46. 全排列](https://leetcode.cn/problems/permutations/)     |      |      |
+| [51. N 皇后](https://leetcode.cn/problems/n-queens/)         |      |      |
+| [52. N皇后 II](https://leetcode.cn/problems/n-queens-ii/)    |      |      |
+| [剑指 Offer II 083. 没有重复元素集合的全排列](https://leetcode.cn/problems/VvJkup/) |      |      |
+| [37. 解数独](https://leetcode.cn/problems/sudoku-solver/)    |      |      |
+| [216. 组合总和 III](https://leetcode.cn/problems/combination-sum-iii/) |      |      |
+| [39. 组合总和](https://leetcode.cn/problems/combination-sum/) |      |      |
+| [40. 组合总和 II](https://leetcode.cn/problems/combination-sum-ii/) |      |      |
+| [46. 全排列](https://leetcode.cn/problems/permutations/)     |      |      |
+| [47. 全排列 II](https://leetcode.cn/problems/permutations-ii/) |      |      |
+| [77. 组合](https://leetcode.cn/problems/combinations/)       |      |      |
+| [78. 子集](https://leetcode.cn/problems/subsets/)            |      |      |
+| [90. 子集 II](https://leetcode.cn/problems/subsets-ii/)      |      |      |
+| [剑指 Offer II 079. 所有子集](https://leetcode.cn/problems/TVdhkn/) |      |      |
+| [剑指 Offer II 080. 含有 k 个元素的组合open in new window](https://leetcode.cn/problems/uUsW3B/) |      |      |
+| [剑指 Offer II 081. 允许重复选择元素的组合](https://leetcode.cn/problems/Ygoe9J/) |      |      |
+| [剑指 Offer II 082. 含有重复元素集合的组合](https://leetcode.cn/problems/4sjJUc/) |      |      |
+| [剑指 Offer II 083. 没有重复元素集合的全排列](https://leetcode.cn/problems/VvJkup/) |      |      |
+| [剑指 Offer II 084. 含有重复元素集合的全排列](https://leetcode.cn/problems/7p8L0Z/) |      |      |
 
