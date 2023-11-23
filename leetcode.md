@@ -2589,6 +2589,104 @@ void backtrack(vector<int>& nums, vector<int>& track) {
 
 
 
+# BFS算法
+
+> BFS的核心思想就是把一些问题抽象成图，从一个点开始，向四周开始扩散。一般来说，写BFS算法都是用**<u>队列</u>**这种数据结构，每次将一个节点周围的所有节点加入队列。
+>
+> BFS相对于DFS的最主要的区别是：BFS找到的路径一定是最短的，但代价就是空间复杂度可能比DFS大很多。
+
+**算法框架**
+
+```c++
+int BFS(Node start, Node target){
+    queue<Node>q;
+    set<Node>visited;
+    
+    q.push(start);
+    visited.insert(start);
+    
+    while(!q.empty()){
+        int sz=q.size();
+        for(int i=0;i<sz;i++){
+            Node cur = q.front();
+            q.pop();
+            if(cur==target){
+                return step;
+            }
+            for(Node x:cur.adj()){
+                if(visited.count(x)==0){
+                    q.push(x);
+                    visited.insert(x);
+                }
+            }
+        }
+    }
+}
+```
+
+> 队列`q`是BFS的核心数据结构；`cur.adj()`泛指`cur`相邻的节点，比如说二维数组中，`cur`上下左右四面的位置就是相邻节点；`visited`的主要作用是防止走回头路，大部分时候都是必须的，但是像一般的二叉树结构，没有子节点到父节点的指针，不会走回头路就不需要`visited`。
+>
+
+## 111.二叉树的最小高度
+
+```c++
+class Solution {
+public:
+    int minDepth(TreeNode* root) {
+        if(root==nullptr) return 0;
+        queue<TreeNode*>q;
+        q.push(root);
+        int depth=1;
+
+        while(!q.empty()){
+            int sz=q.size();
+            /*将当前队列中的所有节点向四周扩散*/
+            for(int i=0;i<sz;i++){
+                TreeNode* cur=q.front();
+                q.pop();
+                /*判断是否到达终点*/
+                if(cur->left==nullptr&&cur->right==nullptr){
+                    return depth;
+                }
+                /*将cur的相邻节点加入队列*/
+                if(cur->left){
+                    q.push(cur->left);
+                }
+                if(cur->right){
+                    q.push(cur->right);
+                }
+            }
+            depth++;
+        }
+        return depth;
+    }
+};
+```
+
+> **1.为什么BFS可以找到最短路径，DFS不行吗？**
+>
+> BFS的逻辑，`depth`每增加一次，队列中的所有节点都向前迈一步，这保证了第一次到达终点的时候，走的步数是最少的。
+>
+> DFS能找最短路径但时间复杂度相对高很多。DFS实际上是靠递归的堆栈记录走过的路径，要找到最短路径，必须把二叉树中所有树杈都探索完才能对比出最短的路径有多长。而BFS借助队列做到一次一步齐头并进，是可以在不遍历完整棵树的条件下找到最短距离的。
+>
+> DFS是线，BFS是面。
+
+> **2.既然BFS那么好，为什么DFS还要存在？**
+>
+> BFS可以找到最短距离，但是空间复杂度高，而DFS的空间复杂度较低。
+>
+> 假设给定的二叉树是满二叉树，节点数为`N`，对于DFS算法来说，空间复杂度无非就是递归堆栈，最坏情况下顶多就是树的高度，也就是`O(logN)`。
+>
+> BFS算法，队列中每次都会存储着二叉树一层的节点，这样最坏情况下空间复杂度应该是树的最底层节点的数量，也就是`N/2`，即`O(N)`。
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2666,8 +2764,8 @@ void backtrack(vector<int>& nums, vector<int>& track) {
 |  LC 40  |                     combination-sum-ii                     |  done  | 20231122 | 61   |
 |  LC 47  |                      permutations-ii                       |  done  | 20231122 | 62   |
 |  LC 39  |                      combination-sum                       |  done  | 20231122 | 63   |
-|         |                                                            |        |          |      |
-|         |                                                            |        |          |      |
+| LC 111  |                minimum-depth-of-binary-tree                |  done  | 20231123 | 64   |
+| LC 752  |                       open-the-lock                        |  done  | 20231123 | 65   |
 |         |                                                            |        |          |      |
 |         |                                                            |        |          |      |
 |         |                                                            |        |          |      |
