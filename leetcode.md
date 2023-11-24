@@ -2765,8 +2765,8 @@ public:
 |  LC 47  |                      permutations-ii                       |  done  | 20231122 | 62   |
 |  LC 39  |                      combination-sum                       |  done  | 20231122 | 63   |
 | LC 111  |                minimum-depth-of-binary-tree                |  done  | 20231123 | 64   |
-| LC 752  |                       open-the-lock                        |  done  | 20231123 | 65   |
-|         |                                                            |        |          |      |
+| LC 752  |                       open-the-lock                        |  done  | 20231124 | 65   |
+| LC 773  |                       sliding-puzzle                       |  done  | 20231124 | 66   |
 |         |                                                            |        |          |      |
 |         |                                                            |        |          |      |
 |         |                                                            |        |          |      |

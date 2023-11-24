@@ -27,8 +27,72 @@ using namespace std;
 // @lc code=start
 class Solution {
 public:
-    int openLock(vector<string>& deadends, string target) {
+    //将s[j]向上拨动一次
+    string plusOne(string s,int j){
+        if(s[j]=='9'){
+            s[j]='0';
+        }else{
+            s[j]+=1;
+        }
+        return s;
+    }
 
+    //将s[j]向下拨动一次
+    string minusOne(string s,int j){
+        if(s[j]=='0'){
+            s[j]='9';
+        }else{
+            s[j]-=1;
+        }
+        return s;
+    }
+
+    int openLock(vector<string>& deadends, string target) {
+        //记录需要跳过的死亡密码
+        unordered_set<string>deads;
+        for(string s:deadends){
+            deads.insert(s);
+        }
+        //记录已经穷举过的密码，防止走回头路
+        unordered_set<string>visited;
+        queue<string>q;
+        //从起点开始进行广度优先搜索
+        int step=0;
+        q.push("0000");
+        visited.insert("0000");
+
+        while(!q.empty()){
+            int sz=q.size();
+            /*将当前队列中的所有节点向周围扩散*/
+            for(int i=0;i<sz;i++){
+                string cur=q.front();
+                q.pop();
+
+                /*判断是否到达终点*/
+                if(deads.count(cur)){
+                    continue;
+                }
+                if(cur==target){
+                    return step;
+                }
+
+                /*将一个节点的未遍历相邻节点加入队列*/
+                for(int j=0;j<4;j++){
+                    string up=plusOne(cur,j);
+                    if(!visited.count(up)){
+                        q.push(up);
+                        visited.insert(up);
+                    }
+                    string down=minusOne(cur,j);
+                    if(!visited.count(down)){
+                        q.push(down);
+                        visited.insert(down);
+                    }
+                }
+            }
+            step++;
+        }
+        return -1;
     }
 };
 // @lc code=end
