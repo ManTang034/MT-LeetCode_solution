@@ -2683,6 +2683,50 @@ public:
 
 
 
+# 秒杀所有岛屿题目
+
+**岛屿系列题目的核心考点就是用DFS/BFS算法遍历二维数组。**
+
+> 把二维矩阵中的每一个位置看作一个节点，这个节点的上下左右四个位置就是相邻节点，那么整个矩阵就可以抽象成一副网状的图结构。可以根据二叉树的遍历框架改写出二维矩阵的DFS代码框架：
+
+```c++
+void traverse(TreeNode* root){
+    traverse(root->left);
+    traverse(root->right);
+}
+
+void dfs(vector<vector<int>>&grid, int i, int j, vector<vector<bool>>&visited){
+    int m=grid.size(),n=grid[0].size();
+    if(i<0||j<0||i>=m||j>=n){
+        return;
+    }
+    if(visited[i][j]){
+        return;
+    }
+    visited[i][j]=true;
+    dfs(grid,i-1,j,visited); //上
+    dfs(grid,i+1,j,visited); //下
+    dfs(grid,i,j-1,visited); //左
+    dfs(grid,i,j+1,visited); //右
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2767,6 +2811,35 @@ public:
 | LC 111  |                minimum-depth-of-binary-tree                |  done  | 20231123 | 64   |
 | LC 752  |                       open-the-lock                        |  done  | 20231124 | 65   |
 | LC 773  |                       sliding-puzzle                       |  done  | 20231124 | 66   |
+| LC 200  |                     number-of-islands                      |  done  | 20231127 | 67   |
+| LC 1254 |                  number-of-closed-islands                  |  done  | 20231127 | 68   |
+| LC 1020 |                     number-of-enclaves                     |  done  | 20231127 | 69   |
+| LC 695  |                     max-area-of-island                     |  done  | 20231127 | 70   |
+| LC 1905 |                     count-sub-islands                      |  done  | 20231127 | 71   |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
+|         |                                                            |        |          |      |
 |         |                                                            |        |          |      |
 |         |                                                            |        |          |      |
 |         |                                                            |        |          |      |
@@ -2978,4 +3051,16 @@ public:
 | [剑指 Offer II 082. 含有重复元素集合的组合](https://leetcode.cn/problems/4sjJUc/) |      |      |
 | [剑指 Offer II 083. 没有重复元素集合的全排列](https://leetcode.cn/problems/VvJkup/) |      |      |
 | [剑指 Offer II 084. 含有重复元素集合的全排列](https://leetcode.cn/problems/7p8L0Z/) |      |      |
+
+### 岛屿问题-review
+
+| Number                                                       |      |      |
+| ------------------------------------------------------------ | ---- | ---- |
+| [1020. 飞地的数量](https://leetcode.cn/problems/number-of-enclaves/) | 🟠    |      |
+| [1254. 统计封闭岛屿的数目](https://leetcode.cn/problems/number-of-closed-islands/) | 🟠    |      |
+| [1905. 统计子岛屿](https://leetcode.cn/problems/count-sub-islands/) | 🟠    |      |
+| [200. 岛屿数量](https://leetcode.cn/problems/number-of-islands/) | 🟠    |      |
+| [694. 不同岛屿的数量](https://leetcode.cn/problems/number-of-distinct-islands/) | 🟠    |      |
+| [695. 岛屿的最大面积](https://leetcode.cn/problems/max-area-of-island/) | 🟠    |      |
+| [剑指 Offer II 105. 岛屿的最大面积open in new window](https://leetcode.cn/problems/ZL6zAn/) | 🟠    |      |
 
