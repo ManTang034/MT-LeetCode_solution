@@ -1,3 +1,147 @@
+# 图论
+
+## 图的逻辑结构和具体实现
+
+一幅图是由节点和边构成的，每个节点的实现如下：
+
+```c++
+/*图节点的逻辑结构*/
+class Vertex{
+    int id;
+    vector<Vertex*> neighbors;
+}
+```
+
+和之前说的多叉树节点几乎完全一样：
+
+```c++
+/*基本的N叉树节点*/
+class TreeNode{
+public:
+    int val;
+    vector<TreeNode*>children;
+}
+```
+
+实际上我们很少用这个`Vertex`类实现图，而是用常说的**<u>邻接表</u>**和**<u>邻接矩阵</u>**来实现。
+
+```c++
+//邻接表
+//graph[x]存储x的所有邻居节点
+vector<int>graph[];
+
+//邻接矩阵
+//matrix[x][y]记录x是否有一条指向y的边
+bool matrix[][];
+```
+
+> **两种方式的优劣**
+>
+> 对于邻接表，好处是占用的空间少。但邻接表无法快速判断两个节点是否相邻。
+>
+> 比如想判断节点`1`是否和节点`3`相邻，要去邻接表里`1`对应的邻居列表里查找`3`是否存在。但对于邻接矩阵只需查找`matrix[1][3]`是否存在就知道了，效率高。
+>
+> 在常规的算法题中，邻接表的使用会更频繁一点，主要是因为操作起来较为简单，但这不意味着邻接矩阵应该被轻视。
+
+**度**
+
+在无向图中，度就是每个节点相连的边的条数。
+
+由于有向图的边有方向，所以有向图中每个节点度被细分为**入度**（indegree）和**出度**（outdegree）。
+
+**有向加权图的实现**
+
+如果是邻接表，存储某个节点`x`的所有邻居节点，还存储`x`到每个邻接的权重。
+
+如果是邻接矩阵，`matrix[x][y]`不再是布尔值，而是一个int值，0表示没有连接，其他值表示权重。
+
+```c++
+//邻接表
+//graph[x]存储x的所有邻居节点以及对应的权重
+vector<pair<int,int>>graph[];
+
+//邻居矩阵
+//matrix[x][y]记录x指向y的边的权值，0表示不相邻
+vector<vector<int>>matrix;
+```
+
+## 图的遍历
+
+> 各种数据结构被发明出来无非就是为了遍历和访问，所以遍历是所有数据结构的基础。
+
+图怎么遍历？参考多叉树，多叉树的DFS遍历框架如下：
+
+```c++
+/*多叉树遍历框架*/
+void traverse(TreeNode*root){
+    if(root==nullptr) return;
+    //前序位置
+    for(TreeNode* child:root->children){
+        traverse(child);
+    }
+    //后序位置
+}
+```
+
+> 图和多叉树最大的区别是，图是可能包含环的，你从图的某一个节点开始遍历，有可能走了一圈又回到这个节点，而树不会出现这种情况，从某个节点出发必然走到叶子节点，绝不可能回到它自身。
+>
+> 所以，如果图包含环，遍历框架就要一个`visited`数组进行辅助。
+
+```c++
+//记录被遍历过的节点
+vector<bool>visited;
+//记录从起点到当前节点的路径
+vector<bool>onPath;
+
+/*图遍历框架*/
+void traverse(Graph graph, int s){
+    if(visited[s]) return;
+    //经过节点s，标记为已遍历
+    visited[s]=true;
+    //做选择：标记节点s在路径上
+    onPath[s]=true;
+    for(int neighbor:graph.neighbors(s)){
+        traverse(graph,neighbor);
+    }
+    //撤销选择：节点s离开路径
+    onPath[s]=false;
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # 分治
 
 > 分治是一种算法设计思想，它将一个复杂的问题划分成若干个规模较小且结构相似的子问题，然后递归地解决这些子问题，最后将子问题的解合并起来得到原问题的解。
@@ -2816,7 +2960,7 @@ void dfs(vector<vector<int>>&grid, int i, int j, vector<vector<bool>>&visited){
 | LC 1020 |                     number-of-enclaves                     |  done  | 20231127 | 69   |
 | LC 695  |                     max-area-of-island                     |  done  | 20231127 | 70   |
 | LC 1905 |                     count-sub-islands                      |  done  | 20231127 | 71   |
-|         |                                                            |        |          |      |
+| LC 797  |               all-paths-from-source-to-targe               |  done  | 20231128 | 72   |
 |         |                                                            |        |          |      |
 |         |                                                            |        |          |      |
 |         |                                                            |        |          |      |
@@ -2955,6 +3099,24 @@ void dfs(vector<vector<int>>&grid, int i, int j, vector<vector<bool>>&visited){
 |                                                              |      |      |
 |                                                              |      |      |
 |                                                              |      |      |
+
+### 图-review
+
+| Number                                                       |      |      |
+| ------------------------------------------------------------ | ---- | ---- |
+| [797. 所有可能的路径](https://leetcode.cn/problems/all-paths-from-source-to-target/) |      |      |
+| [剑指 Offer II 110. 所有路径](https://leetcode.cn/problems/bP4bmD/) |      |      |
+|                                                              |      |      |
+|                                                              |      |      |
+|                                                              |      |      |
+|                                                              |      |      |
+|                                                              |      |      |
+|                                                              |      |      |
+|                                                              |      |      |
+
+
+
+
 
 
 
