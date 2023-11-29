@@ -108,7 +108,141 @@ void traverse(Graph graph, int s){
 }
 ```
 
+## 环检测及拓扑排序算法
 
+环检测算法（DFS版本）
+
+207.课程表
+
+每个学期必须选修`numCourses`门课程，记为`0`到`numCourses-1`。在选修某些课程之前需要一些先修课程。先修课程按数组`prerequisites`给出，其中`prerequisites[i]=[ai,bi]`，表示如果要学习课程`ai`则必须先学习课程`bi`。
+
+> 看到依赖问题，首先想到的就是把问题转化成有向图这种数据结构，只要图中存在环，那就说明存在循环依赖。
+>
+> 根据题目输入的`prerequisites`数组生成一幅类似的图，如果发现这幅有向图中存在环，那就说明课程之间存在循环依赖，肯定没办法全部上完；反之，如果没有环，那么肯定能上完全部课程。
+
+```c++
+class Solution {
+public:
+    //记录一次递归堆栈中的节点
+    vector<bool>onPath;
+    //记录遍历过的节点，防止走回头路
+    vector<bool>visited;
+    //记录图中是否有环
+    bool hasCycle=false;
+
+    bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {
+        vector<list<int>>graph=buildGraph(numCourses,prerequisites);
+
+        visited=vector<bool>(numCourses);
+        onPath=vector<bool>(numCourses);
+
+        for(int i=0;i<numCourses;i++){
+            //遍历图中所有节点
+            traverse(graph,i);
+        }
+        return !hasCycle;
+    }
+
+    void traverse(vector<list<int>>&graph, int s){
+        if(onPath[s]){
+            //发现环
+            hasCycle=true;
+        }
+
+        if(visited[s]||hasCycle){
+            return;
+        }
+        visited[s]=true;
+        onPath[s]=true;
+        for(int t:graph[s]){
+            traverse(graph,t);
+        }
+        onPath[s]=false;
+    }
+
+    vector<list<int>>buildGraph(int numCourses,vector<vector<int>>& prerequisites){
+        //图中共有numsCourses个节点
+         vector<list<int>>graph(numCourses);
+        for(int i=0;i<numCourses;i++){
+            graph[i]=list<int>();
+        }
+        for(auto&edge:prerequisites){
+            int from=edge[1],to=edge[0];
+            graph[from].push_back(to);
+        }
+        return graph;
+    }
+};
+```
+
+环检测算法（BFS版本）
+
+```c++
+class Solution {
+public:
+    //记录一次递归堆栈中的节点
+    vector<bool>onPath;
+    //记录遍历过的节点，防止走回头路
+    vector<bool>visited;
+    //记录图中是否有环
+    bool hasCycle=false;
+
+    bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {
+        //建图，有向边代表被依赖关系
+        vector<list<int>>graph=buildGraph(numCourses,prerequisites);
+        //构建入度数组
+        vector<int>indegree(numCourses,0);
+        for(auto edge:prerequisites){
+            int from=edge[1],to=edge[0];
+            //节点to的入度加一
+            indegree[to]++;
+        }
+
+        //根据入度初始化队列中的节点
+        queue<int>q;
+        for(int i=0;i<numCourses;i++){
+            if(indegree[i]==0){
+                //节点i没有入度，即没有依赖的节点
+                //可以作为拓扑排序的起点，加入队列
+                q.push(i);
+            }
+        }
+
+        //记录遍历的节点个数
+        int count=0;
+        //开始执行BFS循环
+        while(!q.empty()){
+            //弹出节点cur，并将它指向的节点的入度减一
+            int cur=q.front();
+            q.pop();
+            count++;
+            for(int next:graph[cur]){
+                indegree[next]--;
+                if(indegree[next]==0){
+                    //如果入度变为0，说明next依赖的节点都已被遍历
+                    q.push(next);
+                }
+            }
+        }
+
+        //如果所有节点都被遍历过，说明不成环
+        return count==numCourses;
+    }
+
+    vector<list<int>>buildGraph(int numCourses,vector<vector<int>>& prerequisites){
+        //图中共有numsCourses个节点
+         vector<list<int>>graph(numCourses);
+        for(int i=0;i<numCourses;i++){
+            graph[i]=list<int>();
+        }
+        for(auto&edge:prerequisites){
+            int from=edge[1],to=edge[0];
+            graph[from].push_back(to);
+        }
+        return graph;
+    }
+};
+```
 
 
 
