@@ -246,15 +246,86 @@ public:
 
 
 
+## 二分图判定算法
+
+> 二分图的顶点集可分割为两个互不相交的子集，图中每条边依附的两个顶点都分属于这两个子集，且两个子集内的顶点不相邻。
 
 
 
+**二分图判定思路**
 
+判定二分图的算法很简单，就是用代码解决双色问题。
 
+说白了就是遍历一遍图，一边遍历一边染色，看看能不能用两种颜色给所有节点染色，且相邻节点的颜色都不相同。
 
+```c++
+//二叉树遍历框架
+void traverse(TreeNode* root){
+    if(root==nullptr) return;
+    traverse(root->left);
+    traverse(root->right);
+}
 
+//多叉树遍历框架
+void traverse(Node* root){
+    if(root==nullptr) return;
+    for(Node* child:root->children){
+        traverse(child);
+    }
+}
 
+//图遍历框架
+vector<bool>visited;
+void traverse(Graph* graph, int v){
+    //防止走回头路进入死循环
+    if(visited[v]) return;
+    //前序遍历位置，标记节点v已访问
+    visited[v]=true;
+    for(Vertex neighbor:graph->neighbors(v)){
+        traverse(graph,neighbor);
+    }
+}
+```
 
+习惯把return语句都放在函数开头，因为一般return语句都是base case，集中放在一起可以让算法结构更清晰。，但也可以把if判断放到其他地方。
+
+```c++
+//图遍历框架
+vector<bool>visited;
+void traverse(Graph graph, int v){
+    //前序遍历位置，标记节点v已访问
+    visited[v]=true;
+    for(int neighbor:graph.neighbors(v)){
+        if(!visited[neighbor]){
+            //只遍历没标记过的相邻节点
+            traverse(graph,neighbor);
+        }
+    }
+}
+```
+
+这种写法把对`visited`的判断放到递归调用之前，和之前的写法唯一不同就是，需要保证调用`traverse(v)`的时候，`visited[v]==false`。
+
+回顾二分图的判断，其实就是让`traverse`函数一边遍历节点，一边给节点染色，尝试让每对相邻节点的颜色都不一样。
+
+```c++
+//图遍历框架
+void traverse(Graph graph, bool visited[], int v){
+    visited[v]=true;
+    //遍历节点v的所有相邻节点neighbor
+    for(int neighbor:graph.neighbors(v)){
+        if(!visited[neighbor]){
+            //相邻节点neighbor没有被访问过
+            //那么应该给节点neighbor涂上和节点v不同的颜色
+            traverse(graph,visited,neighbor);
+        }else{
+            //相邻节点neighbor已经被访问过
+            //那么应该比较节点neighbor和节点v的颜色
+            //若相同，则此图不是二分图
+        }
+    }
+}
+```
 
 
 
