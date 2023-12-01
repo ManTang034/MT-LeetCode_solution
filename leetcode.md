@@ -327,6 +327,358 @@ void traverse(Graph graph, bool visited[], int v){
 }
 ```
 
+### **785.判断二分图**
+
+```c++
+class Solution {
+public:
+    //记录图是否符合二分图性质
+    bool ok=true;
+    //记录图中节点的颜色，false和true代表两种不同颜色
+    vector<bool>color;
+    //记录图中节点是否被访问过
+    vector<bool>visited;
+
+    bool isBipartite(vector<vector<int>>& graph) {
+        int n=graph.size();
+        color.resize(n);
+        visited.resize(n);
+        //因为图不一定是联通的，可能存在多个子图
+        //所以要把每个节点都作为起点进行一次遍历
+        //如果发现任何一个子图不是二分图，整幅图都不算是二分图
+        for(int v=0;v<n;v++){
+            if(!visited[v]){
+                traverse(graph,v);
+            }
+        }
+        return ok;
+    }
+
+    //DFS遍历框架
+    void traverse(vector<vector<int>>&graph,int v){
+        //如果已经确定不是二分图，直接结束
+        if(!ok) return;
+
+        visited[v]=true;
+        for(int w:graph[v]){
+            if(!visited[w]){
+                //相邻节点w没有被访问过
+                //那么应该给节点w涂上和节点v不同的颜色
+                color[w]=!color[v];
+                //继续遍历w
+                traverse(graph,w);
+            }else{
+                //相邻节点w已经被访问过
+                //根据节点v和w的颜色判断是否是二分图
+                if(color[w]==color[v]){
+                    ok=false;
+                    return;
+                }
+            }
+        }
+    }
+};
+```
+
+### 886.可能的二分法
+
+```c++
+class Solution {
+public:
+    bool ok=true;
+    vector<bool>color;
+    vector<bool>visited;
+
+    bool possibleBipartition(int n, vector<vector<int>>& dislikes) {
+        //图的节点编号从1开始
+        color.resize(n+1);
+        visited.resize(n+1);
+        //转化成邻接表表示图结构
+        vector<vector<int>>graph=buildGraph(n,dislikes);
+
+        for(int v=1;v<=n;v++){
+            if(!visited[v]){
+                traverse(graph,v);
+            }
+        }
+        return ok;
+    }
+
+    //建图函数
+    vector<vector<int>>buildGraph(int n,vector<vector<int>>&dislikes){
+        //图的节点编号为1..n
+        vector<vector<int>>graph(n+1);
+        for(int i=1;i<=n;i++){
+            graph[i]={};
+        }
+        for(auto edge:dislikes){
+            int v=edge[1];
+            int w=edge[0];
+            //无向图相当于双向图
+            graph[v].push_back(w);
+            graph[w].push_back(v);
+        }
+        return graph;
+    }
+
+    void traverse(vector<vector<int>>&graph,int v){
+        if(!ok) return;
+        visited[v]=true;
+        for(int w:graph[v]){
+            if(!visited[w]){
+                color[w]=!color[v];
+                traverse(graph,w);
+            }else{
+                if(color[w]==color[v]){
+                    ok=false;
+                    return;
+                }
+            }
+        }
+    }
+};
+```
+
+## 并查集（Union-Find）算法
+
+> https://labuladong.gitee.io/algo/di-yi-zhan-da78c/shou-ba-sh-03a72/bing-cha-j-323f3/
+
+并查集（Union-Find）算法是一个专门针对动态连通性的算法，也是最小生成树算法的前置知识。
+
+### 一、动态连通性
+
+简单说，动态连通性其实可以抽象成一幅图连线。比如一幅图中共有10个节点，它们互不相连，分别用0-9标记
+
+现在我们的Union-Find算法主要需要实现这两个API
+
+```c++
+class UF{
+public:
+    /*将p和q连接*/
+    void union(int p, int q);
+    /*判断p和q是否连通*/
+    bool connected(int p, int q);
+    /*返回图中有多少个连通分量*/
+    int count();
+};
+```
+
+这里说的**连通**是一种等价关系，也就是说具有如下三个性质：
+
+1. 自反性：节点`p`和`p`是连通的。
+2. 对称性：如果节点`p`和`q`连通，那么`q`和`p`也连通。
+3. 传递性：如果节点`p`和`q`连通，`q`和`r`连通，那么`p`和`r`也连通。
+
+比如说之前那幅图，0-9任意两个不同的点都不连通，调用`connected`都会返回false，连通分量为10个。
+
+如果现在调用`union(0,1)`，那么0和1被连通，连通分量降为9个。
+
+判断这种等价关系非常实用，比如说编译器判断同一个变量的不同引用，比如社交网络中的朋友圈计算等等。
+
+Union-Find算法的关键在于`union`和`connected`函数的效率。
+
+### 二、基本思路
+
+使用森林（若干棵树）来表示图的动态连通性，用数组来具体实现这个森林。
+
+我们设定树的每个节点都有一个指针指向其父节点，如果是根节点的话，这个指针指向自己。比如说刚才那幅10个节点的图，一开始的时候没有相互连通。
+
+```c++
+class UF{
+//记录连通分量
+private:
+    int count;
+    //节点x的父节点是parent[x]
+    int* parent;
+public:
+    /*构造函数，n为图的节点总数*/
+    UF(int n){
+        //一开始互不相通
+        this->count=n;
+        //父节点指针初始指向自己
+        parent=new int[n];
+        for(int i=0;i<n;i++){
+            parent[i]=i;
+        }
+    }
+    /*其他函数*/
+}
+```
+
+如果某两个节点被连通，则让其中的（任意）一个节点的根节点接到另一个节点的根节点上。
+
+```c++
+class UF{
+    //....
+public:
+    void union(int p,int q){
+        int rootP=find(p);
+        int rootQ=find(q);
+        if(rootP==rootQ){
+            return;
+        }
+        //将两棵树合并为一颗
+        parent[rootP]=rootQ;
+        //parent[rootQ]=rootP也一样
+        count--; //两个分量合二为一
+    }
+    
+    /*返回某个节点x的根节点*/
+    int find(int x){
+        //根节点的parent[x]==x
+        while(parent[x]!=x){
+            x=parent[x];
+        }
+        return x;
+    }
+    
+    /*返回当前的连通分量个数*/
+    int count(){
+        return count;
+    }
+}
+```
+
+这样，如果节点`p`和`q`连通的话，它们一定拥有相同的根节点
+
+```c++
+class UF{
+private:
+    //....
+public:
+    bool connected(int p,int q){
+        int rootP=find(p);
+        int rootQ=find(q);
+        return rootP==rootQ;
+    }
+}
+```
+
+> 主要API`connected`和`union`中的复杂度都是`find`函数造成的，所以说它们的复杂度和`find`一样。`find`主要功能就是从某个节点向上遍历到树根，其时间复杂度就是树的高度。`logN`的高度只存在于平衡二叉树，对于一般的树可能出现极端不平衡的情况，使得树几乎退化成链表，树的高度最坏情况下可能变成`N`。
+>
+> 所以上面这种解法，`find`、`union`、`connected`的时间复杂度都是`O(N)`。这个复杂度很不理想，图论解决的都是诸如社交网络这样数据规模巨大的问题，对于`union`和`connected`的调用非常频繁，每次调用需要线性时间完全不可忍受。
+
+**问题的关键在于，如何想办法避免树的不平衡**
+
+### 三、平衡性优化
+
+由于一开始就是简单粗暴的把`p`所在的树接到`q`所在的树的根节点下面，那么这里就可能出现头重脚轻的不平衡情况。长此以往，树可能生长得很不平衡。**我们其实希望，小一些的树接到大一些的树下面，这样就能避免头重脚轻，更平衡一些。**
+
+解决方法是额外使用一个`size`数组，记录每棵树包含的节点数，我们不妨称为重量：
+
+```c++
+class UF{
+private:
+    int count;
+    int* parent;
+    //新增一个数组记录树的“重量”
+    int* size;
+public:
+    UF(int n){
+        this->count=n;
+        parent=new int[n];
+        //最初每棵树只有一个节点
+        //重量应该初始化1
+        size=new int[n];
+        for(int i=0;i<n;i++){
+            parent[i]=i;
+            size[i]=1;
+        }
+    }
+    /*其他函数*/
+}
+```
+
+比如说`size[3]=5`表示以节点`3`为根的那棵树，总共有`5`个节点。这样我们可以修改一下`union`方法：
+
+```c++
+class UF{
+private:
+    //......
+public:
+    void union(int p, int q){
+        int rootP=find(p);
+        int rootQ=find(q);
+        if(rootP==rootQ){
+            return;
+        }
+        //小树接到大树下面，较平衡
+        if(size[rootP]>size[rootQ]){
+            parent[rootQ]=rootP;
+            size[rootP]+=size[rootQ];
+        }else{
+            parent[rootP]=rootQ;
+            size[rootQ]+=size[rootP];
+        }
+        count--;
+    }
+}
+```
+
+> 这样，通过比较树的重量，就可以保证树的生长相对平衡，树的高度大致在`logN`这个数量级，极大提升执行效率。
+>
+> 此时，`find`、`union`、`connected`的时间复杂度都下降为O(logN)，即便数据规模上亿，所需时间也非常少。
+
+### 四、路径压缩
+
+其实我们并不在乎每棵树的结构长什么样，只在乎根节点。
+
+> 因为无论树长啥样，树上的每个节点的根节点都是相同的，所以能不能进一步压缩每棵树的高度，使树高始终保持为常数，这样每个节点的父节点就是整棵树的根节点，`find`就能以O(1)的时间找到某一节点的根节点，相应的，`connected`和`union`复杂度都下降为O(1)。
+
+要做到这一点主要是修改`find`函数逻辑
+
+第一种是在`find`中加一行代码：
+
+```c++
+class UF{
+    //.....
+public:
+    int find(int x){
+        while(parent[x]!=x){
+            //这行代码进行路径压缩
+            parent[x]=parent[parent[x]];
+            x=parent[x];
+        }
+        return x;
+    }
+}
+```
+
+第二种写法
+
+```c++
+class UF{
+    //....
+public:
+    int find(int x){
+        if(parent[x]!=x){
+            parent[x]=find(parent[x]);
+        }
+        return parent[x];
+    }
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3166,10 +3518,10 @@ void dfs(vector<vector<int>>&grid, int i, int j, vector<vector<bool>>&visited){
 | LC 695  |                     max-area-of-island                     |  done  | 20231127 | 70   |
 | LC 1905 |                     count-sub-islands                      |  done  | 20231127 | 71   |
 | LC 797  |               all-paths-from-source-to-targe               |  done  | 20231128 | 72   |
-|         |                                                            |        |          |      |
-|         |                                                            |        |          |      |
-|         |                                                            |        |          |      |
-|         |                                                            |        |          |      |
+| LC 210  |                     course-schedule-ii                     |  done  | 20231129 | 73   |
+| LC 207  |                      course-schedule                       |  done  | 20231129 | 74   |
+| LC 785  |                     is-graph-bipartite                     |  done  | 20231130 | 75   |
+| LC 886  |                    possible-bipartition                    |  done  | 20231130 | 76   |
 |         |                                                            |        |          |      |
 |         |                                                            |        |          |      |
 |         |                                                            |        |          |      |
