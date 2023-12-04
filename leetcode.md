@@ -659,11 +659,87 @@ public:
 }
 ```
 
+这个递归过程不好理解，可以把这个函数做的事情翻译成迭代形式，方便理解它进行路径压缩的原理：
 
+```c++
+int find(int x){
+    //先找到根节点
+    int root=x;
+    while(parent[root]!=root){
+        root=parent[root];
+    }
+    //然后把x到根节点之间的所有节点直接接到根节点下面
+    int old_parent=parent[x];
+    while(x!=root){
+        parent[x]=root;
+        x=old_parent;
+        old_parent=parent[old_parent];
+    }
+    return root;
+}
+```
 
+**另外，如果使用路径压缩技巧，那么`size`数组的平衡优化就不是特别必要了。**所以一般看到的Union Find算法应该是如下实现：
 
+```c++
+class UF{
+private:
+    //连通分量个数
+    int count;
+    //存储每个节点的父节点
+    int* parent;
+public:
+    //n为图中节点的个数
+    UF(int n){
+        this->count=n;
+        parent=new int[n];
+        for(int i=0;i<n;i++){
+            parent[i]=i;
+        }
+    }
+    
+    //将节点p和节点q连通
+    void union_(int p,int q){
+        int rootP=find(p);
+        int rootQ=find(q);
+        
+        if(rootP==rootQ){
+            return;
+        }
+        
+        parent[rootQ]=rootP;
+        //两个连通分量合并成一个连通分量
+        count--;
+    }
+    
+    //判断节点p和节点q是否连通
+    bool connected(int p,int q){
+        int rootP=find(p);
+        int rootQ=find(q);
+        return rootP==rootQ;
+    }
+    
+    int find(int x){
+        if(parent[x]!=x){
+            parent[x]=find(parent[x]);
+        }
+        return parent[x];
+    }
+    
+    //返回图中的连通分量个数
+    int count_(){
+        return count;
+    }
+}
+```
 
+Union-Find算法的复杂度可以这样分析：构造函数初始化数据结构需要O(N)的时间和空间复杂度；连通两个节点`union`、判断两个节点的连通性`connected`、计算连通分量`count`所需的时间复杂度均为O(1)。
 
+总结优化算法的过程：
+
+1. 用`parent`数组记录每个节点的父节点，相当于指向父节点的指针，所以`parent`数组内实际存储着一个森林（若干课多叉树）。
+2. 用`size`数组记录着每棵树的重量，目的是让`union`后树依然拥有平衡性，保证各个API时间复杂度为O(logN)，而不会退化成链表影响操作效率。
+3. 在`find`函数中进行路径压缩，保证任意树的高度保持在常数，使得各个API时间复杂度为O(1)。使用了路径压缩之后，可以不使用`size`数组的平衡优化。
 
 
 
