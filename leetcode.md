@@ -741,21 +741,204 @@ Union-Find算法的复杂度可以这样分析：构造函数初始化数据结�
 2. 用`size`数组记录着每棵树的重量，目的是让`union`后树依然拥有平衡性，保证各个API时间复杂度为O(logN)，而不会退化成链表影响操作效率。
 3. 在`find`函数中进行路径压缩，保证任意树的高度保持在常数，使得各个API时间复杂度为O(1)。使用了路径压缩之后，可以不使用`size`数组的平衡优化。
 
+## Dijkstra算法模板及应用
 
+从二叉树的层序遍历开始推演出Dijkstra算法的实现。
 
+**二叉树层级遍历和BFS算法**
 
+```c++
+//输入一颗二叉树的根节点，层序遍历这颗二叉树
+int levelTraverse(TreeNode* root){
+    if(root==nullptr) return 0;
+    queue<TreeNode*>q;
+    q.push(root);
+    
+    int depth=1;
+    //从上到下遍历二叉树的每一层
+    while(!q.empty()){
+        int sz=q.size();
+        //从左到右遍历每一层的每个节点
+        for(int i=0;i<sz;i++){
+            TreeNode* cur=q.front();
+            q.pop();
+            printf("节点%s在第%s层",cur,depth);
+            
+            //将下一层节点放入队列
+            if(cur->left!=nullptr){
+                q.push(cur->left);
+            }
+            if(cur->right!=nullptr){
+                q.push(cur->right);
+            }
+        }
+        depth++;
+    }
+    return depth;
+}
+```
 
+> while循环控制一层一层往下走，for循环利用sz变量控制从左到右遍历每一层二叉树节点。
 
+**多叉树的层序遍历框架**
 
+```c++
+void levelTraverse(TreeNode* root){
+    if(root==nullptr) return;
+    queue<TreeNode*>q;
+    q.push(root);
+    
+    int depth=1;
+    while(!q.empty()){
+        int sz=q.size();
+        for(int i=0;i<sz;i++){
+            TreeNode* cur=q.front();
+            q.pop();
+            printf("节点%s在第%s层",cur,depth);
+            
+            for(auto child:cur->children){
+                q.push(child);
+            }
+        }
+        depth++;
+    }
+}
+```
 
+**基于多叉树的遍历框架，扩展出BFS（广度优先搜索）的算法框架**
 
+```c++
+//输入起点，进行BFS搜索
+int BFS(Node* start){
+    queue<Node*>q;
+    set<Node*>visited; //避免走回头路
+    
+    q.push(start);
+    visited.insert(start);
+    
+    int step=0;
+    while(!q.empty()){
+        int sz=q.size();
+        /*将当前队列中的所有节点向四周扩散一步*/
+        for(int i=0;i<sz;i++){
+            Node* cur=q.front();
+            q.pop();
+            printf("从%s到%s的最短距离是%s",start->val,cur->val,step);
+            /*将cur的相邻节点加入队列*/
+            for(Node* x:cur->adj()){
+                if(visited.count(x)==0){
+                    q.push(x);
+                    visited.insert(x);
+                }
+            }
+        }
+        step++;
+    }
+}
+```
 
+> 去掉for循环，就无法维护depth变量。
+>
+> 如果想同时维护depth变量，让每个节点cur知道自己在第几层，可以想其他办法，比如新建一个state类，记录每个节点所在的层数。
 
+```c++
+struct State{
+    //记录node节点的深度
+    int depth;
+    TreeNode* node;
+    
+    State(TreeNode* node, int depth){
+        this->depth=depth;
+        this->node=node;
+    }
+};
 
+//输入一颗二叉树的根节点，遍历这颗二叉树所有节点
+void levelTraverse(TreeNode* root){
+    if(root==nullptr) return;
+    queue<state>q;
+    q.push(State(root,1));
+    
+    //遍历二叉树的每一个节点
+    while(!q.empty()){
+        State cur=q.front();
+        q.pop();
+        TreeNode* cur_node=cur.node;
+        int cur_depth=cur.depth;
+        printf("节点%s在第%s层",cur_node,cur_depth);
+        
+        //将子节点放入队列
+        if(cur_node->left!=nullptr){
+            q.push(State(cur_node->left,cur_depth+1));
+        }
+        if(cur_node->right!=nullptr){
+            q.push(State(cur_node->right,cur_depth+1));
+        }
+    }
+}
+```
 
+### Dijkstra算法框架
 
+Dijkstra算法签名
 
+```c++
+//输入一幅图和一个起点start，计算start到其他节点的最短距离
+vector<int>dijkstra(int start,vector<int>*graph);
+```
 
+> 输入是一幅图`graph`和一个起点`start`，返回是一个记录最短路径权重的数组。
+>
+> 比方说，输入起点`start=3`，函数返回一个`int[]`数组，假设赋值给`distTo`变量，那么从起点`3`到节点`6`的最短路径权重的值就是`distTo[6]`。
+>
+> 标准的Dijkstra算法会把从起点`start`到所有其他节点的最短路径都算出来。
+>
+> **其次，我们也需要一个`state`类来辅助算法的运行**
+
+```c++
+class State{
+    //图节点的id
+    int id;
+    //从start节点到当前节点的距离
+    int distFromStart;
+    
+public:
+    State(int id, int distFromStart){
+        this->id=id;
+        this->distFromStart=distFromStart;
+    }
+};
+```
+
+普通BFS算法中，根据BFS的逻辑和无权图的特点，第一次遇到某个节点所走的步数就是最短举例，所以用一个`visited`数组防止走回头路，每个节点只会经过一次。
+
+加权图中的Dijkstra算法和无权图中的普通BFS算法不同，在Dijkstra算法中，第一次经过某个节点时的路径权重，不见得就是最小的，所以对于同一个节点，我们可能会经过多次，而且每次的`distFromStart`可能都不一样。
+
+**其实，Dijkstra可以理解为一个带dp table的BFS算法，伪代码如下：**
+
+```c++
+//返回节点from到节点to之间的边的权重
+int weight(int from, int to);
+
+//输入节点s返回s的相邻节点
+vector<int>adj(int s);
+
+//输入一幅图和一个起点start，计算start到其他节点的最短距离
+vector<int>dijkstra(int start,vector<int>graph[]){
+    //图中节点的个数
+    int V=graph.size();
+    //记录最短路径的权重，可以理解为dp table
+    //定义：distTo[i]的值就是节点start到达节点i的最短路径权重
+    int distTo[V];
+    //求最小值，所以dp table初始化为正无穷
+    memset(distTo,INT_MAX,sizeof(distTo));
+    //base case，start到start的最短距离就是0
+    distTo[start]=0;
+    
+    //优先级队列，distFromStart较小的排在前面
+    
+}
+```
 
 
 
@@ -3385,18 +3568,19 @@ int BFS(Node start, Node target){
     while(!q.empty()){
         int sz=q.size();
         for(int i=0;i<sz;i++){
-            Node cur = q.front();
+            Node* cur = q.front();
             q.pop();
             if(cur==target){
                 return step;
             }
-            for(Node x:cur.adj()){
+            for(Node* x:cur->adj()){
                 if(visited.count(x)==0){
                     q.push(x);
                     visited.insert(x);
                 }
             }
         }
+        step++;
     }
 }
 ```
